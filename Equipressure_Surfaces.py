@@ -1,13 +1,13 @@
 import numpy as np
 from functools import partial
 from matplotlib import pyplot as plt
-from scipy import integrate as int
+# from scipy import integrate as int
 
     
 class Equipressure_surface():
     def __init__(self, metric_name:str, g:float = 0, a:float=0.01, M:float = 1, L:str="const", omg:str = "const"):
         self.metric_name: str = metric_name 
-        self.g:float = g #metric length parameter probably going to be of the order of the planck length#
+        self.g:float = g #metripi length parameter probably going to be of the order of the planck length#
         self.a:float = a #rotation parameter#
         self.M:float = M #mass of the black hole
         self.L_type:str = L #type of angular momentum distribution#
@@ -291,17 +291,17 @@ class Equipressure_surface():
         
         return r, th
 
-    def scipy_int(self, r_0, th_0):
-        def zero_crossing_th(r,th):
-            return np.cos(th[-1])
-        zero_crossing_th.terminal = True # type: ignore
+    # def scipy_int(self, r_0, th_0):
+    #     def zero_crossing_th(r,th):
+    #         return np.cos(th[-1])
+    #     zero_crossing_th.terminal = True # type: ignore
 
-        sol = int.solve_ivp(self.diff_func, [r_0,2.5*self.M],[r_0,th_0], events=zero_crossing_th, method="BDF")
+    #     sol = int.solve_ivp(self.diff_func, [r_0,2.5*self.M],[r_0,th_0], events=zero_crossing_th, method="BDF")
 
-        r = sol.y[0]
-        th = sol.y[1]
-        print(th)
-        return r,th
+    #     r = sol.y[0]
+    #     th = sol.y[1]
+    #     print(th)
+    #     return r,th
 
 def rth_to_xz(r,th)->tuple:
     x =r*np.sin(th)
