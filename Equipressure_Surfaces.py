@@ -324,7 +324,7 @@ th_0 = np.pi/2+0.0001 ## the initial value of theta, not that it is not exactly 
 ## inital values for different runs of r 
 r_0 = 25 
 r_01 = 50
-r_02 = 12
+r_02 = 20
 
 ### Solving the EPS for the different Black hole parameter/starting conditions ###
 
@@ -333,38 +333,46 @@ r,th = eps.solve_loop(N,r_0,dr,th_0)
 # print(th)
 x,z = rth_to_xz(r,th)
 plt.plot(x,z, c = "r", label=f"{eps.metric_name}")
+plt.plot(x,-z, c = "r")
 r,th = eps.solve_loop(N,r_02,dr,th_0)
 # print(th)
 x,z = rth_to_xz(r,th)
 plt.plot(x,z, c = "r")
+plt.plot(x,-z, c = "r")
 
 
 r,th = eps2.solve_loop(N,r_0,dr,th_0)
 # print(th)
 x,z = rth_to_xz(r[:-1],th[:-1])
 plt.plot(x,z, c = "b", label=f"{eps2.metric_name}")
+plt.plot(x,-z, c = "b")
 r,th = eps2.solve_loop(N,r_02,dr,th_0)
 # print(th)
 x,z = rth_to_xz(r[:-1],th[:-1])
 plt.plot(x,z, c = "b")
+plt.plot(x,-z, c = "b")
 
 r,th = eps3.solve_loop(N,r_0,dr,th_0)
 # print(th)
 x,z = rth_to_xz(r[:-1],th[:-1])
 plt.plot(x,z, c = "g", label=f"{eps3.metric_name}")
+plt.plot(x,-z, c = "g")
 r,th = eps3.solve_loop(N,r_02,dr,th_0)
 # print(th)
 x,z = rth_to_xz(r[:-1],th[:-1])
 plt.plot(x,z, c = "g")
+plt.plot(x,-z, c = "g")
 
 r,th = eps4.solve_loop(N,r_0,dr,th_0)
 # print(th)
 x,z = rth_to_xz(r[:-1],th[:-1])
 plt.plot(x,z, c = "y", label=f"{eps4.metric_name}")
 r,th = eps4.solve_loop(N,r_02,dr,th_0)
+plt.plot(x,-z, c = "y")
 # print(th)
 x,z = rth_to_xz(r[:-1],th[:-1])
 plt.plot(x,z, c = "y")
+plt.plot(x,-z, c = "y")
 
 ## plotting the plots
 plt.legend()
