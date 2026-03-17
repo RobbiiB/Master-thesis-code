@@ -308,72 +308,74 @@ def rth_to_xz(r,th)->tuple:
     z=-r*np.cos(th)
     return (x,z)
 
-##create the figure to plot##
-plt.figure()
 
-##initializing the equipressure surface calculators##
-eps = Equipressure_surface("Kerr",g = 0.9, a=0.5, L="const") 
-eps2 = Equipressure_surface("Kaz",g = 0.9, a=0.5, L="const")
-eps3 = Equipressure_surface("Hay",g = 0.9, a=0.5, L="const")
-eps4 = Equipressure_surface("Zha",g = 0.9, a=0.5, L="const")
+if __name__=="__main__":
+    ##create the figure to plot##
+    plt.figure()
 
-
-N = 2000000 ## maximum number of steps (this will probably not be reached)
-dr = -0.0001 ## the step siz in the r direction
-th_0 = np.pi/2+0.0001 ## the initial value of theta, not that it is not exactly 0.5*pi as that would be problematic 
-## inital values for different runs of r 
-r_0 = 25 
-r_01 = 50
-r_02 = 20
-
-### Solving the EPS for the different Black hole parameter/starting conditions ###
+    ##initializing the equipressure surface calculators##
+    eps = Equipressure_surface("Kerr",g = 0.9, a=0.5, L="const") 
+    eps2 = Equipressure_surface("Kaz",g = 0.9, a=0.5, L="const")
+    eps3 = Equipressure_surface("Hay",g = 0.9, a=0.5, L="const")
+    eps4 = Equipressure_surface("Zha",g = 0.9, a=0.5, L="const")
 
 
-r,th = eps.solve_loop(N,r_0,dr,th_0)
-# print(th)
-x,z = rth_to_xz(r,th)
-plt.plot(x,z, c = "r", label=f"{eps.metric_name}")
-plt.plot(x,-z, c = "r")
-r,th = eps.solve_loop(N,r_02,dr,th_0)
-# print(th)
-x,z = rth_to_xz(r,th)
-plt.plot(x,z, c = "r")
-plt.plot(x,-z, c = "r")
+    N = 2000000 ## maximum number of steps (this will probably not be reached)
+    dr = -0.0001 ## the step siz in the r direction
+    th_0 = np.pi/2+0.0001 ## the initial value of theta, not that it is not exactly 0.5*pi as that would be problematic 
+    ## inital values for different runs of r 
+    r_0 = 25 
+    r_01 = 50
+    r_02 = 20
+
+    ### Solving the EPS for the different Black hole parameter/starting conditions ###
 
 
-r,th = eps2.solve_loop(N,r_0,dr,th_0)
-# print(th)
-x,z = rth_to_xz(r[:-1],th[:-1])
-plt.plot(x,z, c = "b", label=f"{eps2.metric_name}")
-plt.plot(x,-z, c = "b")
-r,th = eps2.solve_loop(N,r_02,dr,th_0)
-# print(th)
-x,z = rth_to_xz(r[:-1],th[:-1])
-plt.plot(x,z, c = "b")
-plt.plot(x,-z, c = "b")
+    r,th = eps.solve_loop(N,r_0,dr,th_0)
+    # print(th)
+    x,z = rth_to_xz(r,th)
+    plt.plot(x,z, c = "r", label=f"{eps.metric_name}")
+    plt.plot(x,-z, c = "r")
+    r,th = eps.solve_loop(N,r_02,dr,th_0)
+    # print(th)
+    x,z = rth_to_xz(r,th)
+    plt.plot(x,z, c = "r")
+    plt.plot(x,-z, c = "r")
 
-r,th = eps3.solve_loop(N,r_0,dr,th_0)
-# print(th)
-x,z = rth_to_xz(r[:-1],th[:-1])
-plt.plot(x,z, c = "g", label=f"{eps3.metric_name}")
-plt.plot(x,-z, c = "g")
-r,th = eps3.solve_loop(N,r_02,dr,th_0)
-# print(th)
-x,z = rth_to_xz(r[:-1],th[:-1])
-plt.plot(x,z, c = "g")
-plt.plot(x,-z, c = "g")
 
-r,th = eps4.solve_loop(N,r_0,dr,th_0)
-# print(th)
-x,z = rth_to_xz(r[:-1],th[:-1])
-plt.plot(x,z, c = "y", label=f"{eps4.metric_name}")
-r,th = eps4.solve_loop(N,r_02,dr,th_0)
-plt.plot(x,-z, c = "y")
-# print(th)
-x,z = rth_to_xz(r[:-1],th[:-1])
-plt.plot(x,z, c = "y")
-plt.plot(x,-z, c = "y")
+    r,th = eps2.solve_loop(N,r_0,dr,th_0)
+    # print(th)
+    x,z = rth_to_xz(r[:-1],th[:-1])
+    plt.plot(x,z, c = "b", label=f"{eps2.metric_name}")
+    plt.plot(x,-z, c = "b")
+    r,th = eps2.solve_loop(N,r_02,dr,th_0)
+    # print(th)
+    x,z = rth_to_xz(r[:-1],th[:-1])
+    plt.plot(x,z, c = "b")
+    plt.plot(x,-z, c = "b")
 
-## plotting the plots
-plt.legend()
-plt.show()
+    r,th = eps3.solve_loop(N,r_0,dr,th_0)
+    # print(th)
+    x,z = rth_to_xz(r[:-1],th[:-1])
+    plt.plot(x,z, c = "g", label=f"{eps3.metric_name}")
+    plt.plot(x,-z, c = "g")
+    r,th = eps3.solve_loop(N,r_02,dr,th_0)
+    # print(th)
+    x,z = rth_to_xz(r[:-1],th[:-1])
+    plt.plot(x,z, c = "g")
+    plt.plot(x,-z, c = "g")
+
+    r,th = eps4.solve_loop(N,r_0,dr,th_0)
+    # print(th)
+    x,z = rth_to_xz(r[:-1],th[:-1])
+    plt.plot(x,z, c = "y", label=f"{eps4.metric_name}")
+    r,th = eps4.solve_loop(N,r_02,dr,th_0)
+    plt.plot(x,-z, c = "y")
+    # print(th)
+    x,z = rth_to_xz(r[:-1],th[:-1])
+    plt.plot(x,z, c = "y")
+    plt.plot(x,-z, c = "y")
+
+    ## plotting the plots
+    plt.legend()
+    plt.show()
