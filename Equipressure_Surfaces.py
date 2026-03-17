@@ -5,13 +5,22 @@ from matplotlib import pyplot as plt
 
     
 class Equipressure_surface():
-    def __init__(self, metric_name:str, g:float = 0, a:float=0.01, M:float = 1, L:str="const", omg:str = "const"):
+    def __init__(self, metric_name:str, g_max_frac:float = 0, a:float=0.01, M:float = 1, L:str="const", omg:str = "const"):
         self.metric_name: str = metric_name 
-        self.g:float = g #metripi length parameter probably going to be of the order of the planck length#
         self.a:float = a #rotation parameter#
         self.M:float = M #mass of the black hole
         self.L_type:str = L #type of angular momentum distribution#
         self.Omg_type:str = omg #type of angular frequency distribution#
+        
+        #metric length parameter probably going to be of the order of the planck length#
+        if self.metric_name=="kerr":
+            self.g:float = 0
+        elif self.metric_name=="Hay":
+            self.g:float = g_max_frac * 2/3 * 2**(2/3) * self.M
+        elif self.metric_name=="Bar":
+            self.g:float = g_max_frac * 4/(3*np.sqrt(3)) * self.M
+        elif self.metric_name=="Kaz":
+            self.g:float = g_max_frac*0
         
     
     def diff_func(self, r,theta)->float:
@@ -223,6 +232,7 @@ class Equipressure_surface():
         else: 
             self.__setattr__("metric_name", "Kerr")
             return M
+    
     def drm_func(self,r)->float:
         M = self.M
         g = self.g
@@ -314,10 +324,10 @@ if __name__=="__main__":
     plt.figure()
 
     ##initializing the equipressure surface calculators##
-    eps = Equipressure_surface("Kerr",g = 0.9, a=0.5, L="const") 
-    eps2 = Equipressure_surface("Kaz",g = 0.9, a=0.5, L="const")
-    eps3 = Equipressure_surface("Hay",g = 0.9, a=0.5, L="const")
-    eps4 = Equipressure_surface("Zha",g = 0.9, a=0.5, L="const")
+    eps = Equipressure_surface("Kerr",g_max_frac = 0.9, a=0.5, L="const") 
+    eps2 = Equipressure_surface("Kaz",g_max_frac = 0.9, a=0.5, L="const")
+    eps3 = Equipressure_surface("Hay",g_max_frac = 0.9, a=0.5, L="const")
+    eps4 = Equipressure_surface("Zha",g_max_frac = 0.9, a=0.5, L="const")
 
 
     N = 2000000 ## maximum number of steps (this will probably not be reached)

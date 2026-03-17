@@ -9,9 +9,11 @@ def rth_to_xz(r,th)->tuple:
     z=-r*np.cos(th)
     return (x,z)
 
+
+
 if __name__=="__main__":
-    eqpre = EqPre("Kerr",g = 0.9, a=0.5, L="const") 
-    eqpot = EqPot("Kerr",g = 0.9, a=0.5, L="const") 
+    eqpre = EqPre("Kaz",g_max_frac = 0.3, a=0.5, L="const") 
+    eqpot = EqPot("Kerr",g_max_frac = 0.9, a=0.5, L="const") 
 
 
     N = 2000000 ## maximum number of steps (this will probably not be reached)
