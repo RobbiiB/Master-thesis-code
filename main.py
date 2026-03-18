@@ -12,7 +12,7 @@ def rth_to_xz(r,th)->tuple:
 
 
 if __name__=="__main__":
-    eqpre = EqPre("Hay",g_max_frac = 0, a=0.5, L="const") 
+    eqpre_hay = EqPre("Hay",g_max_frac = 0, a=0.5, L="const") 
     eqpre_kerr = EqPre("Kerr",g_max_frac = 0, a=0.5, L="const") 
     
     N = 2000000 ## maximum number of steps (this will probably not be reached)
@@ -24,18 +24,18 @@ if __name__=="__main__":
 
     for a in a_span:
         for g in g_span:
-            eqpre.update_params(g_max_frac=g,a=a)
+            eqpre_hay.update_params(g_max_frac=g,a=a)
 
             plt.figure()
             for r_0 in r_0s:
                 r_kerr,th_kerr = eqpre_kerr.solve_loop(N,r_0,dr,th_0)
                 x_kerr,z_kerr=rth_to_xz(r_kerr,th_kerr)
 
-                r,th = eqpre.solve_loop(N,r_0,dr,th_0)
+                r,th = eqpre_hay.solve_loop(N,r_0,dr,th_0)
                 x,z = rth_to_xz(r,th)
                 if r_0==r_0s[0]:
                     plt.plot(x_kerr,z_kerr,color="#1B1918",linestyle="-", label=f"{eqpre_kerr.metric_name}, a={eqpre_kerr.a}")
-                    plt.plot(x,z,color="#bc0031",linestyle="-.", label=f"{eqpre.metric_name}, g={eqpre.g}, a={eqpre.a}")
+                    plt.plot(x,z,color="#bc0031",linestyle=":", label=f"{eqpre_hay.metric_name}, g={int(100*eqpre_hay.g)/100}, a={eqpre_hay.a}")
                 else:
                     plt.plot(x_kerr,z_kerr,color="#1B1918",linestyle="-")
                     plt.plot(x,z,color="#bc0031",linestyle=":")
