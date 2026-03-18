@@ -26,6 +26,15 @@ class Equipressure_surface():
     def update_params(self,**kwargs):
         # print(kwargs)
         for kwarg in kwargs:
+            if kwarg=="g_max_frac":
+                if self.metric_name=="kerr":
+                    self.g:float = 0
+                elif self.metric_name=="Hay":
+                    self.g:float = kwargs[kwarg] * 2/3 * 2**(2/3) * self.M
+                elif self.metric_name=="Bar":
+                    self.g:float = kwargs[kwarg] * 4/(3*np.sqrt(3)) * self.M
+                elif self.metric_name=="Kaz":
+                    self.g:float = kwargs[kwarg]*0
             try:
                 self.__setattr__(kwarg,kwargs[kwarg])
             except:
