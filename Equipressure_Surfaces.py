@@ -11,6 +11,7 @@ class Equipressure_surface():
         self.M:float = M #mass of the black hole
         self.L_type:str = L #type of angular momentum distribution#
         self.Omg_type:str = omg #type of angular frequency distribution#
+        self.g=0
         
         #metric length parameter probably going to be of the order of the planck length#
         if self.metric_name=="kerr":
@@ -22,7 +23,14 @@ class Equipressure_surface():
         elif self.metric_name=="Kaz":
             self.g:float = g_max_frac*0
         
-    
+    def update_params(self,**kwargs):
+        # print(kwargs)
+        for kwarg in kwargs:
+            try:
+                self.__setattr__(kwarg,kwargs[kwarg])
+            except:
+                print(f"{kwarg} is not a valid kwarg")
+        
     def diff_func(self, r,theta)->float:
         ##The function of the differential equation using the angular momentum distribution and metrics with upper indices##
 
