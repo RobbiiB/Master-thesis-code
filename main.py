@@ -12,37 +12,44 @@ def rth_to_xz(r,th)->tuple:
 
 
 if __name__=="__main__":
-    eqpre_hay = EqPre("Hay",g_max_frac = 0, a=0.5, L="const") 
-    eqpre_kerr = EqPre("Kerr",g_max_frac = 0, a=0.5, L="const") 
+    eqpot_hay = EqPot("Hay",g_max_frac = 0, a=0.5, L="const") 
+    eqpot_bar = EqPot("Bar",g_max_frac = 0, a=0.5, L="const") 
+    eqpot_kerr = EqPot("Kerr",g_max_frac = 0, a=0.5, L="const") 
     
     N = 2000000 ## maximum number of steps (this will probably not be reached)
     dr = -0.0001 ## the step siz in the r direction
     th_0 = np.pi/2+0.0001 ## the initial value of theta, not that it is not exactly 0.5*pi as that would be problematic 
-    r_0s = [10,13,16,19,21,25] ## inital values for different runs of r 
+    r_0s = [10,13,16,19,22,25] ## inital values for different runs of r 
     g_span = [0,0.2,0.4,0.6,0.8,1]
     a_span = [0.5,0.6,0.7,0.8,0.9,1]
 
     for a in a_span:
         for g in g_span:
-            eqpre_hay.update_params(g_max_frac=g,a=a)
+            eqpot_kerr.update_params(a=a)
+            eqpot_hay.update_params(g_max_frac=g,a=a)
+            eqpot_bar.update_params(g_max_frac=g,a=a)
 
             plt.figure()
             for r_0 in r_0s:
-                r_kerr,th_kerr = eqpre_kerr.solve_loop(N,r_0,dr,th_0)
+                r_kerr,th_kerr = eqpot_kerr.solve_loop(N,r_0,dr,th_0)
                 x_kerr,z_kerr=rth_to_xz(r_kerr,th_kerr)
 
-                r,th = eqpre_hay.solve_loop(N,r_0,dr,th_0)
-                x,z = rth_to_xz(r,th)
+                r_hay,th_hay = eqpot_hay.solve_loop(N,r_0,dr,th_0)
+                x_hay,z_hay = rth_to_xz(r_hay,th_hay)
+
+                r_bar,th_bar = eqpot_bar.solve_loop(N,r_0,dr,th_0)
+                x_bar,z_bar = rth_to_xz(r_bar,th_bar)
                 if r_0==r_0s[0]:
-                    plt.plot(x_kerr,z_kerr,color="#1B1918",linestyle="-", label=f"{eqpre_kerr.metric_name}, a={eqpre_kerr.a}")
-                    plt.plot(x,z,color="#bc0031",linestyle=":", label=f"{eqpre_hay.metric_name}, g={int(100*eqpre_hay.g)/100}, a={eqpre_hay.a}")
+                    plt.plot(x_kerr,z_kerr,color="#1B1918",linestyle="-", label=f"{eqpot_kerr.metric_name}, a={eqpot_kerr.a}")
+                    plt.plot(x_hay,z_hay,color="#bc0031",linestyle="-.", label=f"{eqpot_hay.metric_name}, g={int(100*eqpot_hay.g)/100}, a={eqpot_hay.a}")
+                    plt.plot(x_bar,z_bar,color="#1d7492",linestyle=":", label=f"{eqpot_bar.metric_name}, g={int(100*eqpot_bar.g)/100}, a={eqpot_bar.a}")
                 else:
                     plt.plot(x_kerr,z_kerr,color="#1B1918",linestyle="-")
-                    plt.plot(x,z,color="#bc0031",linestyle=":")
+                    plt.plot(x_hay,z_hay,color="#bc0031",linestyle="-.")
+                    plt.plot(x_bar,z_bar,color="#1d7492",linestyle=":")
             plt.ylabel("z")
             plt.xlabel(r"$\rho$")
             plt.legend()
-            plt.savefig(fname=f"{eqpre.metric_name}_{eqpre.g}_{eqpre.a}_comp_kerr.pdf")
+            plt.savefig(fname=f"{eqpot_hay.g_max_frac}_{eqpot_hay.a}_comp_kerr.pdf")
             plt.show()
-
 

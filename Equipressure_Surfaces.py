@@ -11,6 +11,7 @@ class Equipressure_surface():
         self.M:float = M #mass of the black hole
         self.L_type:str = L #type of angular momentum distribution#
         self.Omg_type:str = omg #type of angular frequency distribution#
+        self.g_max_frac = g_max_frac
         self.g=0
         
         #metric length parameter probably going to be of the order of the planck length#

@@ -8,6 +8,7 @@ class Equipotential_surface():
         self.a:float = a #rotation parameter#
         self.M:float = M #mass of the black hole
         self.L_type:str = L #type of angular momentum distribution#
+        self.g_max_frac = g_max_frac
         self.g=0
         #metric length parameter probably going to be of the order of the planck length#
         if self.metric_name=="kerr":
@@ -22,6 +23,15 @@ class Equipotential_surface():
     def update_params(self,**kwargs):
         # print(kwargs)
         for kwarg in kwargs:
+            if kwarg=="g_max_frac":
+                if self.metric_name=="kerr":
+                    self.g:float = 0
+                elif self.metric_name=="Hay":
+                    self.g:float = kwargs[kwarg] * 2/3 * 2**(2/3) * self.M
+                elif self.metric_name=="Bar":
+                    self.g:float = kwargs[kwarg] * 4/(3*np.sqrt(3)) * self.M
+                elif self.metric_name=="Kaz":
+                    self.g:float = kwargs[kwarg]*0
             try:
                 self.__setattr__(kwarg,kwargs[kwarg])
             except:
@@ -175,7 +185,7 @@ class Equipotential_surface():
             drm = M * (3*r**2*g**3/(r**3 + g**3)**2)
             return drm
         elif self.metric_name == "Bar":
-            drm = M * (3*r**2*g**2/(r**2 + g**2))**(5/2)
+            drm = M * (3*r**2*g**2/(r**2 + g**2)**(5/2))
             return drm
         elif self.metric_name == "Zha":
             drm = -4*M*g**2/r**3 + 6*M**2*g**2/r**4 + g**2/(2*r**2)
