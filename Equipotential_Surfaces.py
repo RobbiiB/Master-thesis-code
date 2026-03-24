@@ -5,8 +5,8 @@ from matplotlib import pyplot as plt
 class Equipotential_surface():
     def __init__(self, metric_name:str, g_max_frac:float = 0, a:float=0.01, M:float = 1, L:str="const"):
         self.metric_name: str = metric_name 
-        self.a:float = a #rotation parameter#
         self.M:float = M #mass of the black hole
+        self.a:float = a*self.M #rotation parameter#
         self.L_type:str = L #type of angular momentum distribution#
         self.g_max_frac = g_max_frac
         self.g=0
@@ -220,6 +220,8 @@ class Equipotential_surface():
             if r[-1]<2.5*self.M:
                 break
             if np.cos(th[-1])>0:
+                r=r[:-1]
+                th=th[:-1]
                 break
             if np.sin(th[-1])<0:
                 break

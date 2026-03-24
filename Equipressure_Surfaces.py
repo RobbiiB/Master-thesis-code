@@ -7,8 +7,8 @@ from matplotlib import pyplot as plt
 class Equipressure_surface():
     def __init__(self, metric_name:str, g_max_frac:float = 0, a:float=0.01, M:float = 1, L:str="const", omg:str = "const"):
         self.metric_name: str = metric_name 
-        self.a:float = a #rotation parameter#
         self.M:float = M #mass of the black hole
+        self.a:float = a*self.M #rotation parameter#
         self.L_type:str = L #type of angular momentum distribution#
         self.Omg_type:str = omg #type of angular frequency distribution#
         self.g_max_frac = g_max_frac

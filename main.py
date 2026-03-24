@@ -21,7 +21,7 @@ if __name__=="__main__":
     th_0 = np.pi/2+0.0001 ## the initial value of theta, not that it is not exactly 0.5*pi as that would be problematic 
     r_0s = [10,13,16,19,22,25] ## inital values for different runs of r 
     g_span = [0,0.2,0.4,0.6,0.8,1]
-    a_span = [0.5,0.6,0.7,0.8,0.9,1]
+    a_span = [0.7,0.8,0.9,1] #0.5,0.6,
 
     for a in a_span:
         for g in g_span:
