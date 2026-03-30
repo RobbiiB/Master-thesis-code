@@ -5,35 +5,38 @@ from matplotlib import pyplot as plt
 
     
 class Equipressure_surface():
-    def __init__(self, metric_name:str, g_max_frac:float = 0, a:float=0.01, M:float = 1, L:str="const", omg:str = "const"):
+    def __init__(self, metric_name:str, g_max_frac:float = 0, a:float=0.01, M:float = 1, L:str="const", omg:str = "const", g_max:float = 0):
         self.metric_name: str = metric_name 
         self.M:float = M #mass of the black hole
         self.a:float = a*self.M #rotation parameter#
         self.L_type:str = L #type of angular momentum distribution#
         self.Omg_type:str = omg #type of angular frequency distribution#
         self.g_max_frac = g_max_frac
+        self.g_max = g_max
         self.g=0
         
         #metric length parameter probably going to be of the order of the planck length#
         if self.metric_name=="kerr":
             self.g:float = 0
         elif self.metric_name=="Hay":
-            self.g:float = g_max_frac * 2/3 * 2**(2/3) * self.M
+            self.g:float = g_max_frac * self.g_max * self.M
         elif self.metric_name=="Bar":
-            self.g:float = g_max_frac * 4/(3*np.sqrt(3)) * self.M
+            self.g:float = g_max_frac * self.g_max * self.M
         elif self.metric_name=="Kaz":
             self.g:float = g_max_frac*0
         
     def update_params(self,**kwargs):
         # print(kwargs)
         for kwarg in kwargs:
+            if kwarg == "g_max":
+                self.g_max = kwargs["g_max"]
             if kwarg=="g_max_frac":
                 if self.metric_name=="kerr":
                     self.g:float = 0
                 elif self.metric_name=="Hay":
-                    self.g:float = kwargs[kwarg] * 2/3 * 2**(2/3) * self.M
+                    self.g:float = kwargs[kwarg] * self.g_max * self.M
                 elif self.metric_name=="Bar":
-                    self.g:float = kwargs[kwarg] * 4/(3*np.sqrt(3)) * self.M
+                    self.g:float = kwargs[kwarg] * self.g_max * self.M
                 elif self.metric_name=="Kaz":
                     self.g:float = kwargs[kwarg]*0
             try:

@@ -1,5 +1,6 @@
 import numpy as np
-from functools import partial
+import json
+import bisect as bs
 from matplotlib import pyplot as plt
 from Equipotential_Surfaces import Equipotential_surface as EqPot
 from Equipressure_Surfaces import Equipressure_surface as EqPre
@@ -12,22 +13,36 @@ def rth_to_xz(r,th)->tuple:
 
 
 if __name__=="__main__":
+    with open("param_vals.txt", "r") as file:
+        param_values = json.load(file)
+        file.close
+    a_vals = param_values["a_vals"]
+    g_max_hay = param_values["g_hay"]
+    g_max_bar = param_values["g_bar"]
+    
     eqpot_hay = EqPot("Hay",g_max_frac = 0, a=0.5, L="const") 
     eqpot_bar = EqPot("Bar",g_max_frac = 0, a=0.5, L="const") 
     eqpot_kerr = EqPot("Kerr",g_max_frac = 0, a=0.5, L="const") 
     
-    N = 2000000 ## maximum number of steps (this will probably not be reached)
-    dr = -0.0001 ## the step siz in the r direction
-    th_0 = np.pi/2+0.0001 ## the initial value of theta, not that it is not exactly 0.5*pi as that would be problematic 
-    r_0s = [10,13,16,19,22,25] ## inital values for different runs of r 
+    N: int = 2000000 ## maximum number of steps (this will probably not be reached)
+    dr: float = -0.0001 ## the step siz in the r direction
+    th_0: float = np.pi/2+0.0001 ## the initial value of theta, not that it is not exactly 0.5*pi as that would be problematic 
+    r_0s: list = [10,13,16,19,22,25] ## inital values for different runs of r 
     g_span = [0,0.2,0.4,0.6,0.8,1]
-    a_span = [0.7,0.8,0.9,1] #0.5,0.6,
+    a_span = [0.5,0.6,0.7,0.8,0.9,1] #
+
+    
+
 
     for a in a_span:
+        index_g_max_val = bs.bisect_left(a_vals,a)
+        eqpot_hay.update_params(g_max = g_max_hay[index_g_max_val])
+        eqpot_bar.update_params(g_max = g_max_bar[index_g_max_val])
         for g in g_span:
             eqpot_kerr.update_params(a=a)
             eqpot_hay.update_params(g_max_frac=g,a=a)
             eqpot_bar.update_params(g_max_frac=g,a=a)
+            # print(eqpot_hay.g, eqpot_hay.g_max)
 
             plt.figure()
             for r_0 in r_0s:
