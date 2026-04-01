@@ -32,7 +32,7 @@ list_of_g_hay=[]
 for i,aval in enumerate(a):
     if i%10==0:
         print(f"{i//10}%")
-    coeffs_hay = [-1.5,2,3*aval**2, 4*aval**2,-1.5*aval**4,0]
+    coeffs_hay = [-1.5,2,3*aval**2, 4*aval**2,-1.5*aval**4]
     roots_hay = np.polynomial.polynomial.polyroots(coeffs_hay[::-1])
     print(roots_hay)
     r_root = np.real(roots_hay[0])
