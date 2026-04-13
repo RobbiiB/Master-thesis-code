@@ -13,6 +13,9 @@ def rth_to_xz(r,th)->tuple:
 
 
 if __name__=="__main__":
+    """
+    #### Comparison kerr hayward bardeen ####
+
     with open("param_vals.txt", "r") as file:
         param_values = json.load(file)
         file.close
@@ -71,4 +74,43 @@ if __name__=="__main__":
             plt.legend()
             plt.savefig(fname=f"{eqpot_hay.g_max_frac}_{eqpot_hay.a}_comp_kerr.pdf")
             plt.show()
+    #"""
 
+    #### comparison kazakov-solodukhin and kerr ####
+
+    eqpot_kerr = EqPot("Kerr",g_max_frac = 0, a=0.5, L="const") 
+    eqpot_kaz = EqPot("Kaz",g_max_frac = 0, a=0.5, L="const") 
+
+
+    N: int = 2000000 ## maximum number of steps (this will probably not be reached)
+    dr: float = -0.0001 ## the step siz in the r direction
+    th_0: float = np.pi/2+0.0001 ## the initial value of theta, not that it is not exactly 0.5*pi as that would be problematic 
+    r_0s: list = [10,13,16,19,22,25] ## inital values for different runs of r 
+    a_vals = [0.5,0.6,0.7,0.8,0.9,1]
+    g_vals = [0.2,0.4,0.6,0.8,1]
+
+    for a in a_vals:
+        for g in g_vals:
+            eqpot_kaz.update_params(g_max_frac=g,a=a)
+            eqpot_kerr.update_params(g_max_frac=g,a=a)
+
+            plt.figure()
+            for i,r_0 in enumerate(r_0s):
+                r_kerr,th_kerr = eqpot_kerr.solve_loop(N,r_0,dr,th_0)
+                x_kerr,z_kerr=rth_to_xz(r_kerr,th_kerr)
+
+                r_kaz,th_kaz = eqpot_kaz.solve_loop(N,r_0,dr,th_0)
+                x_kaz, z_kaz = rth_to_xz(r_kaz,th_kaz)
+
+                print(f"a: {a}, g: {g}, percentage: {int(100*(i+1)/len(r_0s))}%")
+                if r_0==r_0s[0]:
+                    plt.plot(x_kerr,z_kerr,color="#1B1918",linestyle="-", label=f"{eqpot_kerr.metric_name}, a={eqpot_kerr.a}")
+                    plt.plot(x_kaz,z_kaz,color="#bc0031",linestyle="-.", label=f"{eqpot_kaz.metric_name}, a={eqpot_kaz.a}, g={eqpot_kaz.g}")
+                else:
+                    plt.plot(x_kerr,z_kerr,color="#1B1918",linestyle="-")
+                    plt.plot(x_kaz,z_kaz,color="#bc0031",linestyle="-.")
+            plt.ylabel("z")
+            plt.xlabel(r"$\rho$")
+            plt.legend()
+            plt.savefig(fname=f"{eqpot_kaz.g_max_frac}_{eqpot_kaz.a}_kazakov.pdf")
+            plt.show()

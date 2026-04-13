@@ -19,7 +19,7 @@ class Equipotential_surface():
         elif self.metric_name=="Bar":
             self.g:float = g_max_frac * self.g_max * self.M
         elif self.metric_name=="Kaz":
-            self.g:float = g_max_frac*0
+            self.g:float = g_max_frac * self.M
         
     def update_params(self,**kwargs):
         # print(kwargs)
@@ -34,7 +34,7 @@ class Equipotential_surface():
                 elif self.metric_name=="Bar":
                     self.g:float = kwargs[kwarg] * self.g_max * self.M
                 elif self.metric_name=="Kaz":
-                    self.g:float = kwargs[kwarg]*0
+                    self.g:float = kwargs[kwarg] * self.M
             try:
                 self.__setattr__(kwarg,kwargs[kwarg])
             except:
