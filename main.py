@@ -72,7 +72,7 @@ if __name__=="__main__":
             plt.ylabel("z")
             plt.xlabel(r"$\rho$")
             plt.legend()
-            plt.savefig(fname=f"{eqpot_hay.g_max_frac}_{eqpot_hay.a}_comp_kerr.pdf")
+            plt.savefig(fname=f"/Users/robin/Documents/Master thesis 1/figs/{eqpot_hay.g_max_frac}_{eqpot_hay.a}_comp_kerr.pdf")
             plt.show()
     #"""
 
@@ -112,5 +112,5 @@ if __name__=="__main__":
             plt.ylabel("z")
             plt.xlabel(r"$\rho$")
             plt.legend()
-            plt.savefig(fname=f"{eqpot_kaz.g_max_frac}_{eqpot_kaz.a}_kazakov.pdf")
+            plt.savefig(fname=f"/Users/robin/Documents/Master thesis 1/figs/{eqpot_kaz.g_max_frac}_{eqpot_kaz.a}_kazakov.pdf")
             plt.show()
