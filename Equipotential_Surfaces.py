@@ -42,13 +42,15 @@ class Equipotential_surface():
         
         
     def W(self,r,theta):
-        M = self.mass_func(r)
-        a = self.a
-        l = self.L(r,theta)
-        S = self.Sigma(r,theta)
+        # M = self.mass_func(r)
+        # a = self.a
+        # l = self.L(r,theta)
+        # S = self.Sigma(r,theta)
         D = self.Delta(r)
         sin = np.sin(theta)
         psi = self.psi(r,theta)
+        print(psi)
+        
         
         
         W = 0.5*np.log((D*sin**2 )/ psi)
@@ -245,35 +247,35 @@ if __name__=="__main__":
     eps4 = Equipotential_surface("Zha",g_max_frac = 0.5, a=0.5, L="const") 
 
 
-    # r= np.linspace(2.5,40,1000)
-    # W1 = eps1.W(r,theta=np.pi/2)
-    # W2 = eps2.W(r,theta=np.pi/2)
-    # W3 = eps3.W(r,theta=np.pi/2)
-    # W4 = eps4.W(r,theta=np.pi/2)
+    r= np.linspace(2.5,40,1000)
+    W1 = eps1.W(r,theta=np.pi/2)
+    W2 = eps2.W(r,theta=np.pi/2)
+    W3 = eps3.W(r,theta=np.pi/2)
+    W4 = eps4.W(r,theta=np.pi/2)
 
     plt.figure()
-    # plt.plot(r, W1, c = "r", label=f"a = {eps1.metric_name}")
-    # plt.plot(r, W2, c = "g", label=f"a = {eps2.metric_name}")
-    # plt.plot(r, W3, c = "b", label=f"a = {eps3.metric_name}")
-    # plt.plot(r, W4, c = "y", label=f"a = {eps4.metric_name}")
+    plt.plot(r, W1, c = "r", label=f"a = {eps1.metric_name}")
+    plt.plot(r, W2, c = "g", label=f"a = {eps2.metric_name}")
+    plt.plot(r, W3, c = "b", label=f"a = {eps3.metric_name}")
+    plt.plot(r, W4, c = "y", label=f"a = {eps4.metric_name}")
 
-    N = 2000000 ## maximum number of steps (this will probably not be reached)
-    dr = -0.0001 ## the step siz in the r direction
-    th_0 = np.pi/2+0.0001 ## the initial value of theta, not that it is not exactly 0.5*pi as that would be problematic 
-    ## inital values for different runs of r 
-    r_0 = 25 
-    r,th = eps1.solve_loop(N,r_0,dr,th_0)
-    x,z = rth_to_xz(r,th)
-    plt.plot(x,z, c= "r", label=f"{eps1.metric_name}")
-    r,th = eps2.solve_loop(N,r_0,dr,th_0)
-    x,z = rth_to_xz(r,th)
-    plt.plot(x,z, c= "b", label=f"{eps2.metric_name}")
-    r,th = eps3.solve_loop(N,r_0,dr,th_0)
-    x,z = rth_to_xz(r,th)
-    plt.plot(x,z, c= "g", label=f"{eps3.metric_name}")
-    r,th = eps4.solve_loop(N,r_0,dr,th_0)
-    x,z = rth_to_xz(r,th)
-    plt.plot(x,z, c= "y", label=f"{eps4.metric_name}")
+    # N = 2000000 ## maximum number of steps (this will probably not be reached)
+    # dr = -0.0001 ## the step siz in the r direction
+    # th_0 = np.pi/2+0.0001 ## the initial value of theta, not that it is not exactly 0.5*pi as that would be problematic 
+    # ## inital values for different runs of r 
+    # r_0 = 25 
+    # r,th = eps1.solve_loop(N,r_0,dr,th_0)
+    # x,z = rth_to_xz(r,th)
+    # plt.plot(x,z, c= "r", label=f"{eps1.metric_name}")
+    # r,th = eps2.solve_loop(N,r_0,dr,th_0)
+    # x,z = rth_to_xz(r,th)
+    # plt.plot(x,z, c= "b", label=f"{eps2.metric_name}")
+    # r,th = eps3.solve_loop(N,r_0,dr,th_0)
+    # x,z = rth_to_xz(r,th)
+    # plt.plot(x,z, c= "g", label=f"{eps3.metric_name}")
+    # r,th = eps4.solve_loop(N,r_0,dr,th_0)
+    # x,z = rth_to_xz(r,th)
+    # plt.plot(x,z, c= "y", label=f"{eps4.metric_name}")
     # plt.legend()
     # plt.ylim(-0.1,0.1)
     plt.show()
