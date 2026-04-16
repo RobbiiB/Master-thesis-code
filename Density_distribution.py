@@ -14,7 +14,7 @@ class Density_distribution():
 
     def create_point_grid(self,r_max,r_s, N_r:int=100,N_th:int=100):
         r_linspace = np.linspace(r_s,r_max,N_r)
-        th_linspace = np.linspace(0,np.pi/2, N_th)
+        th_linspace = np.linspace(0,np.pi/2, N_th, endpoint=True)
 
         r,th = np.meshgrid(r_linspace,th_linspace)
         return r,th
@@ -29,17 +29,30 @@ class Density_distribution():
         mask = np.where(r2<r_s**2, 0, 1)
         return mask
         
-    def W(self,z_max:float,x_max:float, N:int=100, r_s:float=3):
-        r,th = self.create_point_grid(r_max=30,r_s=r_s)
+    def W(self, N:int=100, r_s:float=3, r_max:float = 30):
+        r,th = self.create_point_grid(r_max=r_max,r_s=r_s, N_r=N,N_th=N)
 
         W_rth = self.eps.W(r=r,theta=th)
 
-        return W_rth
-        pass
+        return W_rth, (r,th)
+    
+    def plot_in_polar(self, W, coords ):
+        x_vals = coords[0]*np.cos(coords[1])
+        y_vals = coords[0]*np.sin(coords[1])
+        im = plt.pcolormesh(x_vals,y_vals, W, edgecolors="face")
+        plt.colorbar(im)
+        plt.ylabel("z")
+        plt.xlabel(r"$\rho$")
+        
+        
+        
         
 if __name__=="__main__":
-    dd = Density_distribution(metric_name="Kerr", g_max_frac=0, a=0.5, L_type="const")
-    plt.figure()
-    W=dd.W(z_max=30,x_max=30,N=100,r_s=2)
-    plt.imshow(W)
-    plt.plot()
+    dd = Density_distribution(metric_name="Kerr", g_max_frac=0, a=0.9, L_type="const")
+
+    W, coords=dd.W(N=1000,r_s=2.5)
+
+    dd.plot_in_polar(W,coords)
+
+    plt.show()
+    

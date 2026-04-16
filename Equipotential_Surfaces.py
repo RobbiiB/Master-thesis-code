@@ -49,11 +49,11 @@ class Equipotential_surface():
         D = self.Delta(r)
         sin = np.sin(theta)
         psi = self.psi(r,theta)
-        print(psi)
+        # print(np.min((D*sin**2 )/ psi))
         
         
         
-        W = 0.5*np.log((D*sin**2 )/ psi)
+        W = 0.5*np.log(np.abs((D*sin**2 )/ psi))
         return W
     
     def dr_W(self,r,theta):
