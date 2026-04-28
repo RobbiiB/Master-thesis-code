@@ -50,8 +50,8 @@ if __name__=="__main__":
             # print(eqpot_hay.g, eqpot_hay.g_max)
 
             plt.figure()
-            W, coords=dd_kerr.W(N=1000,r_s=2.5, r_max=25)
-            dd_kerr.plot_in_polar(W,coords)
+            W, coords=dd_kerr.W(N=1000,r_s=4, r_max=25)
+            dd_kerr.plot_in_polar(np.exp(W),coords)
             for i,r_0 in enumerate(r_0s):
                 
                 r_kerr,th_kerr = eqpot_kerr.solve_loop(N,r_0,dr,th_0)
@@ -66,7 +66,7 @@ if __name__=="__main__":
                 print(f"a: {a}, g: {g}, percentage: {int(100*(i+1)/len(r_0s))}%")
                 
                 if r_0==r_0s[0]:
-                    plt.plot(x_kerr,z_kerr,color="#1B1918",linestyle="-", label=f"{eqpot_kerr.metric_name}, a={eqpot_kerr.a}")
+                    plt.plot(x_kerr,z_kerr,color="#1B1918",linestyle="-", label=f"{eqpot_kerr.spacetime_config.metric_name}, a={a}")
                 #     plt.plot(x_hay,z_hay,color="#bc0031",linestyle="-.", label=f"{eqpot_hay.metric_name}, g={int(100*eqpot_hay.g)/100}, a={eqpot_hay.a}")
                 #     plt.plot(x_bar,z_bar,color="#1d7492",linestyle=":", label=f"{eqpot_bar.metric_name}, g={int(100*eqpot_bar.g)/100}, a={eqpot_bar.a}")
                 else:

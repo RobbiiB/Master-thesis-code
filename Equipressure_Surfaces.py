@@ -1,48 +1,15 @@
 import numpy as np
 from functools import partial
 from matplotlib import pyplot as plt
-# from scipy import integrate as int
+from space_time_config import Spacetime_config as stc
 
     
 class Equipressure_surface():
     def __init__(self, metric_name:str, g_max_frac:float = 0, a:float=0.01, M:float = 1, L:str="const", omg:str = "const", g_max:float = 0):
-        self.metric_name: str = metric_name 
-        self.M:float = M #mass of the black hole
-        self.a:float = a*self.M #rotation parameter#
-        self.L_type:str = L #type of angular momentum distribution#
-        self.Omg_type:str = omg #type of angular frequency distribution#
-        self.g_max_frac = g_max_frac
-        self.g_max = g_max
-        self.g=0
-        
-        #metric length parameter probably going to be of the order of the planck length#
-        if self.metric_name=="kerr":
-            self.g:float = 0
-        elif self.metric_name=="Hay":
-            self.g:float = g_max_frac * self.g_max * self.M
-        elif self.metric_name=="Bar":
-            self.g:float = g_max_frac * self.g_max * self.M
-        elif self.metric_name=="Kaz":
-            self.g:float = g_max_frac*0
+        self.spacetime_config = stc(metric_name=metric_name, g_max_frac=g_max_frac,a = a, M = M, L=L,g_max = g_max, omg=omg)
         
     def update_params(self,**kwargs):
-        # print(kwargs)
-        for kwarg in kwargs:
-            if kwarg == "g_max":
-                self.g_max = kwargs["g_max"]
-            if kwarg=="g_max_frac":
-                if self.metric_name=="kerr":
-                    self.g:float = 0
-                elif self.metric_name=="Hay":
-                    self.g:float = kwargs[kwarg] * self.g_max * self.M
-                elif self.metric_name=="Bar":
-                    self.g:float = kwargs[kwarg] * self.g_max * self.M
-                elif self.metric_name=="Kaz":
-                    self.g:float = kwargs[kwarg]*0
-            try:
-                self.__setattr__(kwarg,kwargs[kwarg])
-            except:
-                print(f"{kwarg} is not a valid kwarg")
+        self.spacetime_config.update_params(kwargs=kwargs)
         
     def diff_func(self, r,theta)->float:
         ##The function of the differential equation using the angular momentum distribution and metrics with upper indices##
@@ -65,7 +32,7 @@ class Equipressure_surface():
 
     def drg_utt(self,r,theta)->float:
         ##the r derivative of the tt component of the metric with upper indices##
-        a = self.a
+        a = self.spacetime_config.a
         M=self.mass_func(r)
         D=self.Delta(r)
         S=self.Sigma(r,theta) 
@@ -75,7 +42,7 @@ class Equipressure_surface():
     
     def drg_utp(self,r,theta)->float:
         ##the r derivative of the t phi component of the metric with upper indices##
-        a = self.a
+        a = self.spacetime_config.a
         M=self.mass_func(r)
         M_=self.drm_func(r)
         D=self.Delta(r)
@@ -85,7 +52,7 @@ class Equipressure_surface():
     
     def drg_upp(self,r,theta)->float:
         ##the r derivative of the phi phi component of the metric with upper indices##
-        a = self.a
+        a = self.spacetime_config.a
         M=self.mass_func(r)
         M_=self.drm_func(r)
         D=self.Delta(r)
@@ -97,7 +64,7 @@ class Equipressure_surface():
     
     def dtg_utt(self,r,theta)->float:
         ##the theta derivative of the tt component of the metric with upper indices##
-        a = self.a
+        a = self.spacetime_config.a
         
         dtg_tt = self.dtg_utp(r,theta)*(r**2+a**2)/a
         
@@ -105,7 +72,7 @@ class Equipressure_surface():
     
     def dtg_utp(self,r,theta)->float:
         ##the theta derivative of the t phi component of the metric with upper indices##
-        a = self.a
+        a = self.spacetime_config.a
         M=self.mass_func(r)
         M_=self.drm_func(r)
         D=self.Delta(r)
@@ -119,7 +86,7 @@ class Equipressure_surface():
     
     def dtg_upp(self,r,theta)->float:
         ##the theta derivative of the phi phi component of the metric with upper indices##
-        a = self.a
+        a = self.spacetime_config.a
         M=self.mass_func(r)
         M_=self.drm_func(r)
         D=self.Delta(r)
@@ -132,7 +99,7 @@ class Equipressure_surface():
         return dtg_pp
     
     def drg_tt(self,r,theta)->float:
-        a = self.a
+        a = self.spacetime_config.a
         M=self.mass_func(r)
         M_=self.drm_func(r)
         D=self.Delta(r)
@@ -145,7 +112,7 @@ class Equipressure_surface():
         return drg_tt
     
     def drg_tp(self,r,theta)->float:
-        a = self.a
+        a = self.spacetime_config.a
         sin = np.sin(theta)
 
         drg_tp = -a*sin**2*self.drg_tt(r,theta)
@@ -153,7 +120,7 @@ class Equipressure_surface():
         return drg_tp
     
     def drg_pp(self,r,theta)->float:
-        a = self.a
+        a = self.spacetime_config.a
         sin = np.sin(theta)
 
         drg_pp = 2*r*sin**2 + a**2*sin**4*self.drg_tt(r,theta)
@@ -161,7 +128,7 @@ class Equipressure_surface():
         return drg_pp
     
     def dthg_tt(self,r,theta)->float:
-        a = self.a
+        a = self.spacetime_config.a
         M=self.mass_func(r)
         S=self.Sigma(r,theta)
         sin = np.sin(theta)
@@ -172,7 +139,7 @@ class Equipressure_surface():
         return dthg_tt
 
     def dthg_tp(self,r,theta)->float:
-        a = self.a
+        a = self.spacetime_config.a
         M=self.mass_func(r)
         S=self.Sigma(r,theta)
         sin = np.sin(theta)
@@ -183,7 +150,7 @@ class Equipressure_surface():
         return dthg_tp
     
     def dthg_pp(self,r,theta)->float:
-        a = self.a
+        a = self.spacetime_config.a
         M=self.mass_func(r)
         M_=self.drm_func(r)
         D=self.Delta(r)
@@ -196,90 +163,31 @@ class Equipressure_surface():
         return dthg_pp
 
     def Omega(self,r,theta)->float:
-        if self.Omg_type =="const":
-            return 10.0
-        if self.Omg_type =="kepler":
-            num = np.sqrt(self.mass_func(r)-r*self.drm_func(r))
-            den = r**1.5 + self.a*np.sqrt(self.mass_func(r)-r*self.drm_func(r))
-            print("Omega", num/den)
-            return num/den
-        else:
-            print("unknown Omega type")
-            return 0.0
+        return self.spacetime_config.Omega(r,theta)
 
     def L(self,r,theta)->float:
-        if self.L_type=="const":
-            L = self.L_rms()
-            return L
-        elif self.L_type=="Kepler":
-            return self.L_kepler(r)
-        elif self.L_type=="Lei et all":
-            if r>9*self.M:
-                return self.L_kepler(r)
-            else:
-                return self.L_rms()
-        else:
-            print("unknown L type")
-            return 0.0
+        return self.spacetime_config.L(r,theta)
     
     def L_kepler(self,r)->float:
-        M = self.mass_func(r)
-        M_ = self.drm_func(r)
-        a = self.a
-        L = ((r**2 + a**2)*np.sqrt(M-M_*r) - 2*a*M*r**0.5)/(r**1.5 - 2*M*r**0.5 + a * np.sqrt(M-M_*r))
-        # print(L)
-        return L
+        return self.spacetime_config.L_kepler(r)
 
     def L_rms(self)->float:
-        r_ms = 9*self.M
-        return self.L_kepler(r_ms)
+        return self.spacetime_config.L_rms()
         
-
     def mass_func(self, r:float )->float:
-        M = self.M
-        g = self.g
-        if self.metric_name == "Kaz":
-            m = M + r/2 - 0.5*np.sqrt(r**2 - g**2)
-            return m
-        elif self.metric_name == "Hay":
-            m = M * (r**3/(r**3 + g**3))
-            return m
-        elif self.metric_name == "Bar":
-            m = M * (r**2/(r**2 + g**2))**(3/2)
-            return m
-        elif self.metric_name == "Zha":
-            m=M + 2*M*g**2/r**2 - 2*M**2*g**2/r**3 - g**2/(2*r)
-            return m 
-        else: 
-            self.__setattr__("metric_name", "Kerr")
-            return M
-    
+        return self.spacetime_config.mass_func(r)
+        
     def drm_func(self,r)->float:
-        M = self.M
-        g = self.g
-        if self.metric_name == "Kaz":
-            drm = 0.5 - 0.5*r/np.sqrt(r**2 - g**2)
-            return drm
-        elif self.metric_name == "Hay":
-            drm = M * (3*r**2*g**3/(r**3 + g**3)**2)
-            return drm
-        elif self.metric_name == "Bar":
-            drm = M * (3*r**2*g**2/(r**2 + g**2))**(5/2)
-            return drm
-        elif self.metric_name == "Zha":
-            drm = -4*M*g**2/r**3 + 6*M**2*g**2/r**4 + g**2/(2*r**2)
-            return drm
-        else: 
-            return 0.0
+        return self.spacetime_config.drm_func(r)
     
-
-
     def Delta(self,r)->float:
-        return r**2 + self.a**2 - 2*r*self.mass_func(r)
+        return self.spacetime_config.Delta(r)
+    
     def Sigma(self,r,theta)->float:
-        return r**2 + self.a**2*np.cos(theta)**2
+        return self.spacetime_config.Sigma(r,theta)
+    
     def f(self,r,theta)->float:
-        return 1-2*r*self.mass_func(r)/self.Sigma(r,theta)
+        return self.spacetime_config.f(r,theta)
     
     def solve_loop(self,N,r_0,dr, th_0 = np.pi/2)-> tuple:
         th = np.array([th_0])
@@ -296,7 +204,7 @@ class Equipressure_surface():
             # print(r)
             # print(r)
             # print(th)
-            if r[-1]<2.5*self.M:
+            if r[-1]<2.5*self.spacetime_config.M:
                 break
             if np.cos(th[-1])>0:
                 break
@@ -315,24 +223,12 @@ class Equipressure_surface():
             dr = dth/self.diff_func(r[-1],th[-1])
             th = np.append(th,th[-1]+dth)
             r = np.append(r,r[-1]+dr)
-            if r[-1]<2.5*self.M:
+            if r[-1]<2.5*self.spacetime_config.M:
                 break
             if np.cos(th[-1])>0:
                 break
         
         return r, th
-
-    # def scipy_int(self, r_0, th_0):
-    #     def zero_crossing_th(r,th):
-    #         return np.cos(th[-1])
-    #     zero_crossing_th.terminal = True # type: ignore
-
-    #     sol = int.solve_ivp(self.diff_func, [r_0,2.5*self.M],[r_0,th_0], events=zero_crossing_th, method="BDF")
-
-    #     r = sol.y[0]
-    #     th = sol.y[1]
-    #     print(th)
-    #     return r,th
 
 def rth_to_xz(r,th)->tuple:
     x =r*np.sin(th)
@@ -365,7 +261,7 @@ if __name__=="__main__":
     r,th = eps.solve_loop(N,r_0,dr,th_0)
     # print(th)
     x,z = rth_to_xz(r,th)
-    plt.plot(x,z, c = "r", label=f"{eps.metric_name}")
+    plt.plot(x,z, c = "r", label=f"{eps.spacetime_config.metric_name}")
     plt.plot(x,-z, c = "r")
     r,th = eps.solve_loop(N,r_02,dr,th_0)
     # print(th)
@@ -377,7 +273,7 @@ if __name__=="__main__":
     r,th = eps2.solve_loop(N,r_0,dr,th_0)
     # print(th)
     x,z = rth_to_xz(r[:-1],th[:-1])
-    plt.plot(x,z, c = "b", label=f"{eps2.metric_name}")
+    plt.plot(x,z, c = "b", label=f"{eps2.spacetime_config.metric_name}")
     plt.plot(x,-z, c = "b")
     r,th = eps2.solve_loop(N,r_02,dr,th_0)
     # print(th)
@@ -388,7 +284,7 @@ if __name__=="__main__":
     r,th = eps3.solve_loop(N,r_0,dr,th_0)
     # print(th)
     x,z = rth_to_xz(r[:-1],th[:-1])
-    plt.plot(x,z, c = "g", label=f"{eps3.metric_name}")
+    plt.plot(x,z, c = "g", label=f"{eps3.spacetime_config.metric_name}")
     plt.plot(x,-z, c = "g")
     r,th = eps3.solve_loop(N,r_02,dr,th_0)
     # print(th)
@@ -399,7 +295,7 @@ if __name__=="__main__":
     r,th = eps4.solve_loop(N,r_0,dr,th_0)
     # print(th)
     x,z = rth_to_xz(r[:-1],th[:-1])
-    plt.plot(x,z, c = "y", label=f"{eps4.metric_name}")
+    plt.plot(x,z, c = "y", label=f"{eps4.spacetime_config.metric_name}")
     r,th = eps4.solve_loop(N,r_02,dr,th_0)
     plt.plot(x,-z, c = "y")
     # print(th)

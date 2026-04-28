@@ -1,65 +1,26 @@
 import numpy as np
 from functools import partial
 from matplotlib import pyplot as plt
+from space_time_config import Spacetime_config as stc
 
 class Equipotential_surface():
     def __init__(self, metric_name:str, g_max_frac:float = 0, a:float=0.01, M:float = 1, L:str="const", g_max:float = 0):
-        self.metric_name: str = metric_name 
-        self.M:float = M #mass of the black hole
-        self.a:float = a*self.M #rotation parameter#
-        self.L_type:str = L #type of angular momentum distribution#
-        self.g_max_frac = g_max_frac
-        self.g_max = g_max #the maximum value of g
-        self.g=0
-        #metric length parameter probably going to be of the order of the planck length#
-        if self.metric_name=="kerr":
-            self.g:float = 0
-        elif self.metric_name=="Hay":
-            self.g:float = g_max_frac * self.g_max * self.M
-        elif self.metric_name=="Bar":
-            self.g:float = g_max_frac * self.g_max * self.M
-        elif self.metric_name=="Kaz":
-            self.g:float = g_max_frac * self.M
+        self.spacetime_config = stc(metric_name=metric_name, g_max_frac=g_max_frac,a = a, M = M, L=L,g_max = g_max)
         
     def update_params(self,**kwargs):
-        # print(kwargs)
-        for kwarg in kwargs:
-            if kwarg == "g_max":
-                self.g_max = kwargs["g_max"]
-            if kwarg=="g_max_frac":
-                if self.metric_name=="kerr":
-                    self.g:float = 0
-                elif self.metric_name=="Hay":
-                    self.g:float = kwargs[kwarg] * self.g_max * self.M
-                elif self.metric_name=="Bar":
-                    self.g:float = kwargs[kwarg] * self.g_max * self.M
-                elif self.metric_name=="Kaz":
-                    self.g:float = kwargs[kwarg] * self.M
-            try:
-                self.__setattr__(kwarg,kwargs[kwarg])
-            except:
-                print(f"{kwarg} is not a valid kwarg")
-        
+        self.spacetime_config.update_params(kwargs=kwargs)
         
     def W(self,r,theta):
-        # M = self.mass_func(r)
-        # a = self.a
-        # l = self.L(r,theta)
-        # S = self.Sigma(r,theta)
         D = self.Delta(r)
         sin = np.sin(theta)
-        psi = self.psi(r,theta)
-        # print(np.min((D*sin**2 )/ psi))
-        
-        
-        
+        psi = self.psi(r,theta)    
         W = 0.5*np.log(np.abs((D*sin**2 )/ psi))
         return W
     
     def dr_W(self,r,theta):
         M = self.mass_func(r)
         M_ = self.drm_func(r)
-        a = self.a
+        a = self.spacetime_config.a
         l = self.L(r,theta)
         S = self.Sigma(r,theta)
         D = self.Delta(r)
@@ -73,7 +34,7 @@ class Equipotential_surface():
     def dth_W(self,r,theta):
         M = self.mass_func(r)
         M_ = self.drm_func(r)
-        a = self.a
+        a = self.spacetime_config.a
         l = self.L(r,theta)
         S = self.Sigma(r,theta)
         D = self.Delta(r)
@@ -87,7 +48,7 @@ class Equipotential_surface():
     def dr_th(self,r,theta):
         M = self.mass_func(r)
         M_ = self.drm_func(r)
-        a = self.a
+        a = self.spacetime_config.a
         l = self.L(r,theta)
         S = self.Sigma(r,theta)
         D = self.Delta(r)
@@ -102,18 +63,19 @@ class Equipotential_surface():
 
     def psi(self,r,theta):
         M = self.mass_func(r)
-        a = self.a
+        a = self.spacetime_config.a
         l = self.L(r,theta)
         S = self.Sigma(r,theta)
         D = self.Delta(r)
         sin = np.sin(theta)
-        return (2*M*r*(l-a*sin**2)**2 / S - l**2 + sin**2*(r**2+a**2))
-    
+        #return (2*M*r*(l-a*sin**2)**2 / S - l**2 + sin**2*(r**2+a**2))
+        return l**2 * (2*M*r/S - 1) - l*4*r*a*sin**2/S + sin**2 * (r**2 + a**2 +2*M*r*a**2*sin**2/S)
+
     def dr_ln_psi(self,r,theta):
         M = self.mass_func(r)
         M_ = self.drm_func(r)
         S = self.Sigma(r,theta)
-        a = self.a
+        a = self.spacetime_config.a
         l = self.L(r,theta)
         sin = np.sin(theta)
         psi = self.psi(r,theta)
@@ -124,7 +86,7 @@ class Equipotential_surface():
         M = self.mass_func(r)
         M_ = self.drm_func(r)
         S = self.Sigma(r,theta)
-        a = self.a
+        a = self.spacetime_config.a
         l = self.L(r,theta)
         sin = np.sin(theta)
         cos = np.cos(theta)
@@ -132,80 +94,29 @@ class Equipotential_surface():
 
         return (8*M*r*(a**2*sin**3*cos - a*sin*cos*l)/S + 4*M*r*sin*cos*a**2*(l-a*sin**2)**2/S**2 + 2*sin*cos*(r**2+a**2))/psi
         
-
     def L(self,r,theta)->float:
-        if self.L_type=="const":
-            L = self.L_rms()
-            return L
-        elif self.L_type=="Kepler":
-            return self.L_kepler(r)
-        elif self.L_type=="Lei et all":
-            if r>9*self.M:
-                return self.L_kepler(r)
-            else:
-                return self.L_rms()
-        else:
-            print("unknown L type")
-            return 0.0
+        return self.spacetime_config.L(r,theta)
     
     def L_kepler(self,r)->float:
-        M = self.mass_func(r)
-        M_ = self.drm_func(r)
-        a = self.a
-        L = ((r**2 + a**2)*np.sqrt(M-M_*r) - 2*a*M*r**0.5)/(r**1.5 - 2*M*r**0.5 + a * np.sqrt(M-M_*r))
-        # print(L)
-        return L
+        return self.spacetime_config.L_kepler(r)
 
     def L_rms(self)->float:
-        r_ms = 9*self.M
-        return self.L_kepler(r_ms)
+        return self.spacetime_config.L_rms()
         
-
     def mass_func(self, r:float )->float:
-        M = self.M
-        g = self.g
-        if self.metric_name == "Kaz":
-            m = M + r/2 - 0.5*np.sqrt(r**2 - g**2)
-            return m
-        elif self.metric_name == "Hay":
-            m = M * (r**3/(r**3 + g**3))
-            return m
-        elif self.metric_name == "Bar":
-            m = M * (r**2/(r**2 + g**2))**(3/2)
-            return m
-        elif self.metric_name == "Zha":
-            m=M + 2*M*g**2/r**2 - 2*M**2*g**2/r**3 - g**2/(2*r)
-            return m 
-        else: 
-            self.__setattr__("metric_name", "Kerr")
-            return M
+        return self.spacetime_config.mass_func(r)
         
     def drm_func(self,r)->float:
-        M = self.M
-        g = self.g
-        if self.metric_name == "Kaz":
-            drm = 0.5 - 0.5*r/np.sqrt(r**2 - g**2)
-            return drm
-        elif self.metric_name == "Hay":
-            drm = M * (3*r**2*g**3/(r**3 + g**3)**2)
-            return drm
-        elif self.metric_name == "Bar":
-            drm = M * (3*r**2*g**2/(r**2 + g**2)**(5/2))
-            return drm
-        elif self.metric_name == "Zha":
-            drm = -4*M*g**2/r**3 + 6*M**2*g**2/r**4 + g**2/(2*r**2)
-            return drm
-        else: 
-            return 0.0
+        return self.spacetime_config.drm_func(r)
     
-
-
     def Delta(self,r)->float:
-        return r**2 + self.a**2 - 2*r*self.mass_func(r)
+        return self.spacetime_config.Delta(r)
+    
     def Sigma(self,r,theta)->float:
-        return r**2 + self.a**2*np.cos(theta)**2
+        return self.spacetime_config.Sigma(r,theta)
+    
     def f(self,r,theta)->float:
-        return 1-2*r*self.mass_func(r)/self.Sigma(r,theta)
+        return self.spacetime_config.f(r,theta)
     
     def solve_loop(self,N,r_0,dr, th_0 = np.pi/2):
         th = np.array([th_0])
@@ -222,7 +133,7 @@ class Equipotential_surface():
             # print(r)
             # print(r)
             # print(th)
-            if r[-1]<2.5*self.M:
+            if r[-1]<2.5*self.spacetime_config.M:
                 break
             if np.cos(th[-1])>0:
                 r=r[:-1]
@@ -254,10 +165,10 @@ if __name__=="__main__":
     W4 = eps4.W(r,theta=np.pi/2)
 
     plt.figure()
-    plt.plot(r, W1, c = "r", label=f"a = {eps1.metric_name}")
-    plt.plot(r, W2, c = "g", label=f"a = {eps2.metric_name}")
-    plt.plot(r, W3, c = "b", label=f"a = {eps3.metric_name}")
-    plt.plot(r, W4, c = "y", label=f"a = {eps4.metric_name}")
+    plt.plot(r, W1, c = "r", label=f"a = {eps1.spacetime_config.metric_name}")
+    plt.plot(r, W2, c = "g", label=f"a = {eps2.spacetime_config.metric_name}")
+    plt.plot(r, W3, c = "b", label=f"a = {eps3.spacetime_config.metric_name}")
+    plt.plot(r, W4, c = "y", label=f"a = {eps4.spacetime_config.metric_name}")
 
     # N = 2000000 ## maximum number of steps (this will probably not be reached)
     # dr = -0.0001 ## the step siz in the r direction

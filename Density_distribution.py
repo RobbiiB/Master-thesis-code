@@ -14,7 +14,7 @@ class Density_distribution():
 
     def create_point_grid(self,r_max,r_s, N_r:int=100,N_th:int=100):
         r_linspace = np.linspace(r_s,r_max,N_r)
-        th_linspace = np.linspace(0,np.pi/2, N_th, endpoint=True)
+        th_linspace = np.linspace(np.pi/4,np.pi/2, N_th, endpoint=True)
 
         r,th = np.meshgrid(r_linspace,th_linspace)
         return r,th
@@ -37,8 +37,8 @@ class Density_distribution():
         return W_rth, (r,th)
     
     def plot_in_polar(self, W, coords ):
-        x_vals = coords[0]*np.cos(coords[1])
-        y_vals = coords[0]*np.sin(coords[1])
+        x_vals = coords[0]*np.sin(coords[1])
+        y_vals = coords[0]*np.cos(coords[1])
         im = plt.pcolormesh(x_vals,y_vals, W, edgecolors="face")
         plt.colorbar(im)
         plt.ylabel("z")
