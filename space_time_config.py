@@ -19,7 +19,7 @@ class Spacetime_config():
             self.g:float = g_max_frac * self.g_max * self.M
         elif self.metric_name=="Bar":
             self.g:float = g_max_frac * self.g_max * self.M
-        elif self.metric_name=="Kaz":
+        elif self.metric_name=="KS":
             self.g:float = g_max_frac * self.M
         
     def update_params(self,**kwargs):
@@ -34,7 +34,7 @@ class Spacetime_config():
                     self.g:float = kwargs[kwarg] * self.g_max * self.M
                 elif self.metric_name=="Bar":
                     self.g:float = kwargs[kwarg] * self.g_max * self.M
-                elif self.metric_name=="Kaz":
+                elif self.metric_name=="KS":
                     self.g:float = kwargs[kwarg] * self.M
             try:
                 self.__setattr__(kwarg,kwargs[kwarg])
@@ -84,7 +84,7 @@ class Spacetime_config():
     def mass_func(self, r:float )->float:
         M = self.M
         g = self.g
-        if self.metric_name == "Kaz":
+        if self.metric_name == "KS":
             m = M + r/2 - 0.5*np.sqrt(r**2 - g**2)
             return m
         elif self.metric_name == "Hay":
@@ -96,6 +96,15 @@ class Spacetime_config():
         elif self.metric_name == "Zha":
             m=M + 2*M*g**2/r**2 - 2*M**2*g**2/r**3 - g**2/(2*r)
             return m 
+        elif self.metric_name == "RN":
+            m = M-g**2/(2*r)
+            return m 
+        elif self.metric_name == "EB":
+            m=M - M*np.tanh(g**2/(2*M*r))
+            return m
+        elif self.metric_name == "GCSV":
+            m = M*np.exp(-g**2/(2*M*r))
+            return m
         else: 
             self.__setattr__("metric_name", "Kerr")
             return M
@@ -103,7 +112,7 @@ class Spacetime_config():
     def drm_func(self,r)->float:
         M = self.M
         g = self.g
-        if self.metric_name == "Kaz":
+        if self.metric_name == "KS":
             drm = 0.5 - 0.5*r/np.sqrt(r**2 - g**2)
             return drm
         elif self.metric_name == "Hay":
@@ -115,6 +124,15 @@ class Spacetime_config():
         elif self.metric_name == "Zha":
             drm = -4*M*g**2/r**3 + 6*M**2*g**2/r**4 + g**2/(2*r**2)
             return drm
+        elif self.metric_name == "RN":
+            drm = g**2/(2*r**2)
+            return drm
+        elif self.metric_name == "EB":
+            drm = g**2/(2*r**2)/(np.cosh(g**2/(2*M*r)))**2
+            return drm
+        elif self.metric_name == "GCSV":
+            drm= g**2/(2*r**2)*np.exp(-g**2/(2*M*r))
+            return drm
         else: 
             return 0.0
     
@@ -123,6 +141,6 @@ class Spacetime_config():
     def Delta(self,r)->float:
         return r**2 + self.a**2 - 2*r*self.mass_func(r)
     def Sigma(self,r,theta)->float:
-        return r**2 + self.a**2*np.cos(theta)**2
+        return r**2 + self.a**2 * np.cos(theta)**2
     def f(self,r,theta)->float:
         return 1-2*r*self.mass_func(r)/self.Sigma(r,theta)

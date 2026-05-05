@@ -2,6 +2,7 @@ import numpy as np
 from functools import partial
 from matplotlib import pyplot as plt
 from Equipotential_Surfaces import Equipotential_surface as EqPot
+import matplotlib.colors as colors
 
 class Density_distribution():
     def __init__(self, metric_name:str="Kerr", g_max_frac:float=0.0, a:float=0.01, L_type:str = "const"):
@@ -36,10 +37,12 @@ class Density_distribution():
 
         return W_rth, (r,th)
     
-    def plot_in_polar(self, W, coords ):
+    def 
+    
+    def plot_in_polar(self, data, coords, cmap = "viridis_r", log_offset:float=0.001):
         x_vals = coords[0]*np.sin(coords[1])
         y_vals = coords[0]*np.cos(coords[1])
-        im = plt.pcolormesh(x_vals,y_vals, W, edgecolors="face")
+        im = plt.pcolormesh(x_vals,y_vals, data, edgecolors="face", cmap=cmap, norm=colors.LogNorm(vmin=np.min(data+log_offset), vmax=np.max(data)))
         plt.colorbar(im)
         plt.ylabel("z")
         plt.xlabel(r"$\rho$")
@@ -50,7 +53,7 @@ class Density_distribution():
 if __name__=="__main__":
     dd = Density_distribution(metric_name="Kerr", g_max_frac=0, a=0.9, L_type="const")
 
-    W, coords=dd.W(N=1000,r_s=2.5)
+    W, coords=dd.W(N=1000,r_s=5)
 
     dd.plot_in_polar(W,coords)
 

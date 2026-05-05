@@ -13,8 +13,18 @@ class Equipotential_surface():
     def W(self,r,theta):
         D = self.Delta(r)
         sin = np.sin(theta)
-        psi = self.psi(r,theta)    
-        W = 0.5*np.log(np.abs((D*sin**2 )/ psi))
+        psi = self.psi(r,theta)
+        M = self.mass_func(r)
+        S = self.Sigma(r,theta)
+        l = self.L(r,theta)
+        a = self.spacetime_config.a
+        W = np.log(np.abs(sin))     \
+            + 0.5*np.log(np.abs(D)) \
+            - 0.5*np.log(np.abs(2*M*r*(l-a*sin**2)**2/S - l**2 + a**2*sin**2 + r**2*sin**2))
+        # W = 0.5*np.log(np.abs((D*sin**2 )/ psi))
+
+        ##Shift W such that min of W=0
+        W = W-np.min(W)
         return W
     
     def dr_W(self,r,theta):
@@ -153,8 +163,8 @@ def rth_to_xz(r,th)->tuple:
 
 if __name__=="__main__":
     eps1 = Equipotential_surface("Kerr",g_max_frac = 0.5, a=0.5, L="const") 
-    eps2 = Equipotential_surface("Kaz",g_max_frac = 0.5, a=0.5, L="const") 
-    eps3 = Equipotential_surface("Hay",g_max_frac = 0.5, a=0.5, L="const") 
+    eps2 = Equipotential_surface("Kerr",g_max_frac = 0.5, a=0.6, L="const") 
+    eps3 = Equipotential_surface("Kerr",g_max_frac = 0.5, a=0.7, L="const") 
     eps4 = Equipotential_surface("Zha",g_max_frac = 0.5, a=0.5, L="const") 
 
 
@@ -168,7 +178,7 @@ if __name__=="__main__":
     plt.plot(r, W1, c = "r", label=f"a = {eps1.spacetime_config.metric_name}")
     plt.plot(r, W2, c = "g", label=f"a = {eps2.spacetime_config.metric_name}")
     plt.plot(r, W3, c = "b", label=f"a = {eps3.spacetime_config.metric_name}")
-    plt.plot(r, W4, c = "y", label=f"a = {eps4.spacetime_config.metric_name}")
+    # plt.plot(r, W4, c = "y", label=f"a = {eps4.spacetime_config.metric_name}")
 
     # N = 2000000 ## maximum number of steps (this will probably not be reached)
     # dr = -0.0001 ## the step siz in the r direction

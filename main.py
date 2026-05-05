@@ -51,7 +51,7 @@ if __name__=="__main__":
 
             plt.figure()
             W, coords=dd_kerr.W(N=1000,r_s=4, r_max=25)
-            dd_kerr.plot_in_polar(np.exp(W),coords)
+            dd_kerr.plot_in_polar(data=W,coords=coords, log_offset=0.0001)
             for i,r_0 in enumerate(r_0s):
                 
                 r_kerr,th_kerr = eqpot_kerr.solve_loop(N,r_0,dr,th_0)
