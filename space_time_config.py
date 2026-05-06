@@ -22,7 +22,7 @@ class Spacetime_config():
         elif self.metric_name=="KS":
             self.g:float = g_max_frac * self.M
         
-    def update_params(self,**kwargs):
+    def update_params(self,kwargs):
         # print(kwargs)
         for kwarg in kwargs:
             if kwarg == "g_max":
@@ -93,10 +93,10 @@ class Spacetime_config():
         elif self.metric_name == "Bar":
             m = M * (r**2/(r**2 + g**2))**(3/2)
             return m
-        elif self.metric_name == "Zha":
+        elif self.metric_name == "Zha": 
             m=M + 2*M*g**2/r**2 - 2*M**2*g**2/r**3 - g**2/(2*r)
             return m 
-        elif self.metric_name == "RN":
+        elif self.metric_name == "RN": ##Reissner Nordstrom
             m = M-g**2/(2*r)
             return m 
         elif self.metric_name == "EB":
