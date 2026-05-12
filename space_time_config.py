@@ -3,7 +3,7 @@ from functools import partial
 from matplotlib import pyplot as plt
 
 class Spacetime_config():
-    def __init__(self, metric_name:str, g_max_frac:float = 0, a:float=0.01, M:float = 1, L:str="const", g_max:float = 0, omg:str = "const",):
+    def __init__(self, metric_name:str, g_max_frac:float = 1, a:float=0.01, M:float = 1, L:str="const", g_max:float = 1, omg:str = "const",):
         self.metric_name: str = metric_name 
         self.M:float = M #mass of the black hole
         self.a:float = a*self.M #rotation parameter#
@@ -21,6 +21,8 @@ class Spacetime_config():
             self.g:float = g_max_frac * self.g_max * self.M
         elif self.metric_name=="KS":
             self.g:float = g_max_frac * self.M
+        elif self.metric_name=="RN":
+            self.g:float = g_max_frac * np.sqrt(self.M**2-self.a**2)
         
     def update_params(self,kwargs):
         # print(kwargs)
@@ -36,6 +38,8 @@ class Spacetime_config():
                     self.g:float = kwargs[kwarg] * self.g_max * self.M
                 elif self.metric_name=="KS":
                     self.g:float = kwargs[kwarg] * self.M
+                elif self.metric_name=="RN":
+                    self.g:float = kwargs[kwarg] * np.sqrt(self.M**2-self.a**2)
             try:
                 self.__setattr__(kwarg,kwargs[kwarg])
             except:
@@ -94,7 +98,7 @@ class Spacetime_config():
             m = M * (r**2/(r**2 + g**2))**(3/2)
             return m
         elif self.metric_name == "Zha": 
-            m=M + 2*M*g**2/r**2 - 2*M**2*g**2/r**3 - g**2/(2*r)
+            m=M - g**2/(2*r)*(1-4*M/r +4*M**2/r**2)
             return m 
         elif self.metric_name == "RN": ##Reissner Nordstrom
             m = M-g**2/(2*r)

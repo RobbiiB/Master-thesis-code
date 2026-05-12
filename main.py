@@ -24,60 +24,64 @@ if __name__=="__main__":
     g_max_hay = param_values["g_hay"]
     g_max_bar = param_values["g_bar"]
     
-    # eqpot_hay = EqPot("Hay",g_max_frac = 0, a=0.5, L="const") 
-    # eqpot = EqPot("Bar",g_max_frac = 1, a=0.7, L="const") 
-    # eqpot_kerr = EqPot("Kerr",g_max_frac = 0, a=0.7, L="const") 
-    dd = DenDist("Bar",g_max_frac = 0, a=0, L_type="const")
-    dd_kerr = DenDist("Kerr", g_max=1 ,g_max_frac = 1, a=0, L_type="const")
+    eqpot = EqPot("Bar",g_max_frac = 1, a=0.7, L="const") 
+    # eqpot2 = EqPot("Hay",g_max_frac = 1, a=0.7, L="const") 
+    dd = DenDist(metric_name="Bar",g_max_frac = 1, a=0, L_type="const")
+    # dd_kerr = DenDist(metric_name="Kerr", g_max=1 ,g_max_frac = 1, a=0, L_type="const")
     
     N: int = 2000000 ## maximum number of steps (this will probably not be reached)
     dr: float = -0.0001 ## the step siz in the r direction
     th_0: float = np.pi/2+0.0001 ## the initial value of theta, not that it is not exactly 0.5*pi as that would be problematic 
     r_0s: list = [10,13,16,19,22,25] ## inital values for different runs of r 
-    g_span = [1] #0,0.2,0.4,0.6,0.8,
-    a_span = [0.7] #0.5,0.6,0.7,0.8,0.9,1
+    g_span = [0,0.2,0.4,0.6,0.8,1] #
+    a_span = [0.5,0.6,0.7,0.8,0.9,1] #
 
     
 
 
     for a in a_span:
         index_g_max_val = bs.bisect_left(a_vals,a)
-        # eqpot.update_params(g_max = g_max_bar[index_g_max_val])
+        eqpot.update_params(g_max = g_max_bar[index_g_max_val])
+        # eqpot2.update_params(g_max = g_max_hay[index_g_max_val])
         # eqpot_kerr.update_params(g_max = g_max_bar[index_g_max_val])
         for g in g_span:
             # eqpot_kerr.update_params(a=a)
-            # eqpot.update_params(g_max_frac=g,a=a)
+            eqpot.update_params(g_max_frac=g,a=a)
+            # eqpot.update_params(g_max_frac=0,a=a)
             # eqpot_bar.update_params(g_max_frac=g,a=a)
             # print(eqpot_hay.g, eqpot_hay.g_max)
-            # dd.update_params(a=a,g_max_frac=g)
+            dd.update_params(a=a,g_max = g_max_bar[index_g_max_val],g_max_frac=g)
             # dd_kerr.update_params(a=a,g_max_frac=g)
 
             plt.figure()
             W, coords=dd.W(N=1000,r_min=4, r_max=25)
-            W_kerr, coords_kerr = dd_kerr.W(N=1000,r_min=4, r_max=25)
-            dd.plot_in_polar(data=W_kerr-W - np.min(W_kerr-W),coords=coords, log_offset=0.0001)
-            # for i,r_0 in enumerate(r_0s):
+            # W_kerr, coords_kerr = dd_kerr.rho(N=1000,r_min=4, r_max=25,gamma=2,K=0.5)
+            dd.plot_in_polar(data=W ,coords=coords, log_offset=0.0001)
+            for i,r_0 in enumerate(r_0s):
                 
-            #     # r_kerr,th_kerr = eqpot_kerr.solve_loop(N,r_0,dr,th_0)
-            #     # x_kerr,z_kerr=rth_to_xz(r_kerr,th_kerr)
 
-            #     # r_hay,th_hay = eqpot_hay.solve_loop(N,r_0,dr,th_0)
-            #     # x_hay,z_hay = rth_to_xz(r_hay,th_hay)
+                r,th = eqpot.solve_loop(N,r_0,dr,th_0)
+                x,z = rth_to_xz(r,th)
 
-            #     r,th = eqpot.solve_loop(N,r_0,dr,th_0)
-            #     x,z = rth_to_xz(r,th)
+                # r2,th2 = eqpot2.solve_loop(N,r_0,dr,th_0)
+                # x2,z2 = rth_to_xz(r2,th2)
 
-            #     print(f"a: {a}, g: {g}, percentage: {int(100*(i+1)/len(r_0s))}%")
+                print(f"a: {a}, g: {g}, percentage: {int(100*(i+1)/len(r_0s))}%")
                 
-            #     if r_0==r_0s[0]:
-            #         plt.plot(x,z,color="#1B1918",linestyle="-")#, label=f"{eqpot.spacetime_config.metric_name}, a={a}")
-            #     else:
-            #         plt.plot(x,z,color="#1B1918",linestyle="-")
+                if r_0==r_0s[0]:
+                    plt.plot(x,z,color="#1B1918",linestyle="-")#, label=f"{eqpot.spacetime_config.metric_name}, a={a}")
+                    # plt.plot(x2,z2,color="#1B1918",linestyle="-")#, label=f"{eqpot.spacetime_config.metric_name}, a={a}")
+                
+                else:
+                    plt.plot(x,z,color="#1B1918",linestyle="-")
+                    # plt.plot(x2,z2,color="#1B1918",linestyle="-")
+            
+            
             plt.ylabel("z")
             plt.xlabel(r"$\rho$")
-            plt.legend()
-            # plt.savefig(fname=f"/Users/robin/Documents/Master thesis 1/figs/Potential_stuff/bar_{a}_g_{g}.pdf")
-            plt.show()
+            # plt.legend()
+            plt.savefig(fname=f"/Users/robin/Documents/Master thesis 1/figs/Potential_stuff/bar_{a}_g_{g}.pdf")
+            # plt.show()
     #"""
     
     

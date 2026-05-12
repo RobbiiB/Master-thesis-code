@@ -10,6 +10,7 @@ class Density_distribution():
     
     def update_params(self,**kwargs):
         self.eps.spacetime_config.update_params(kwargs=kwargs)
+        
 
     def zx_to_rth(self, z:np.ndarray,x:np.ndarray):
         r= x**2 + z**2
@@ -40,7 +41,7 @@ class Density_distribution():
 
         return W_rth, (r,th)
     
-    def density_dist(self, N:int, r_min:float, r_max:float, K:float, gamma:float):
+    def rho(self, N:int, r_min:float, r_max:float, K:float, gamma:float):
         W,coords = self.W(N=N, r_min=r_min, r_max=r_max)
 
         rho = ((gamma-1)*(np.exp(-W) - 1)/(K*gamma))**(1/(gamma-1))

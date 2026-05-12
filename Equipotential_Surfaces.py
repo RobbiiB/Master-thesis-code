@@ -13,7 +13,7 @@ class Equipotential_surface():
     def W(self,r,theta):
         D = self.Delta(r)
         sin = np.sin(theta)
-        psi = self.psi(r,theta)
+        # psi = self.psi(r,theta)
         M = self.mass_func(r)
         S = self.Sigma(r,theta)
         l = self.L(r,theta)
