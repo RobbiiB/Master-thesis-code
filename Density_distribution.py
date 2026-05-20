@@ -41,7 +41,7 @@ class Density_distribution():
 
         return W_rth, (r,th)
     
-    def rho(self, N:int, r_min:float, r_max:float, K:float, gamma:float):
+    def rho(self, N:int, K:float, gamma:float, r_min:float=3, r_max:float=30):
         W,coords = self.W(N=N, r_min=r_min, r_max=r_max)
 
         rho = ((gamma-1)*(np.exp(-W) - 1)/(K*gamma))**(1/(gamma-1))

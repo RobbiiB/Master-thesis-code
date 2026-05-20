@@ -17,12 +17,12 @@ if __name__=="__main__":
     # """
     #### Comparison kerr hayward bardeen ####
 
-    with open("param_vals.txt", "r") as file:
-        param_values = json.load(file)
-        file.close
-    a_vals = param_values["a_vals"]
-    g_max_hay = param_values["g_hay"]
-    g_max_bar = param_values["g_bar"]
+    # with open("param_vals.txt", "r") as file:
+    #     param_values = json.load(file)
+    #     file.close
+    # a_vals = param_values["a_vals"]
+    # g_max_hay = param_values["g_hay"]
+    # g_max_bar = param_values["g_bar"]
     
     eqpot = EqPot("Bar",g_max_frac = 1, a=0.7, L="const") 
     # eqpot2 = EqPot("Hay",g_max_frac = 1, a=0.7, L="const") 
@@ -40,17 +40,17 @@ if __name__=="__main__":
 
 
     for a in a_span:
-        index_g_max_val = bs.bisect_left(a_vals,a)
-        eqpot.update_params(g_max = g_max_bar[index_g_max_val])
+        # index_g_max_val = bs.bisect_left(a_vals,a)
+        # eqpot.update_params(g_max = g_max_bar[index_g_max_val])
         # eqpot2.update_params(g_max = g_max_hay[index_g_max_val])
         # eqpot_kerr.update_params(g_max = g_max_bar[index_g_max_val])
         for g in g_span:
             # eqpot_kerr.update_params(a=a)
-            eqpot.update_params(g_max_frac=g,a=a)
+            eqpot.update_params(a=a,g_max_frac=g)
             # eqpot.update_params(g_max_frac=0,a=a)
             # eqpot_bar.update_params(g_max_frac=g,a=a)
             # print(eqpot_hay.g, eqpot_hay.g_max)
-            dd.update_params(a=a,g_max = g_max_bar[index_g_max_val],g_max_frac=g)
+            dd.update_params(a=a,g_max_frac=g)
             # dd_kerr.update_params(a=a,g_max_frac=g)
 
             plt.figure()

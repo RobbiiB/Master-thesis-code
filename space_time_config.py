@@ -1,23 +1,32 @@
+import json
+import bisect as bs
 import numpy as np
 from functools import partial
 from matplotlib import pyplot as plt
 
 class Spacetime_config():
-    def __init__(self, metric_name:str, g_max_frac:float = 1, a:float=0.01, M:float = 1, L:str="const", g_max:float = 1, omg:str = "const",):
+    def __init__(self, metric_name:str, g_max_frac:float = 1, a:float=0.01, M:float = 1, L:str="const", omg:str = "const",):
         self.metric_name: str = metric_name 
         self.M:float = M #mass of the black hole
         self.a:float = a*self.M #rotation parameter#
         self.L_type:str = L #type of angular momentum distribution#
         self.g_max_frac = g_max_frac
-        self.g_max = g_max #the maximum value of g
+        if self.metric_name in ["Hay","Bar", "EB", "GCSV"]:
+            with open("param_vals.txt", "r") as file:
+                param_values = json.load(file)
+            file.close
+                
+            index_g_max_val = bs.bisect_left(param_values["a_vals"],self.a)
+            self.g_max = param_values["g"][self.metric_name][index_g_max_val]
+        # self.g_max = g_max #the maximum value of g
+
         self.g=0
         self.Omg_type:str = omg
         #metric length parameter probably going to be of the order of the planck length#
-        if self.metric_name=="kerr":
+        
+        if self.metric_name=="Kerr":
             self.g:float = 0
-        elif self.metric_name=="Hay":
-            self.g:float = g_max_frac * self.g_max * self.M
-        elif self.metric_name=="Bar":
+        elif self.metric_name in ["Hay","Bar", "EB", "GCSV"]:
             self.g:float = g_max_frac * self.g_max * self.M
         elif self.metric_name=="KS":
             self.g:float = g_max_frac * self.M
@@ -27,19 +36,25 @@ class Spacetime_config():
     def update_params(self,kwargs):
         # print(kwargs)
         for kwarg in kwargs:
-            if kwarg == "g_max":
-                self.g_max = kwargs["g_max"]
-            if kwarg=="g_max_frac":
-                if self.metric_name=="kerr":
+            if kwarg == "a":
+                self.a = kwargs["a"]
+                with open("param_vals.txt", "r") as file:
+                    param_values = json.load(file)
+                file.close
+
+                index_g_max_val = bs.bisect_left(param_values["a_vals"],self.a)
+                self.g_max = param_values["g"][self.metric_name][index_g_max_val]
+            
+            elif kwarg=="g_max_frac":
+                if self.metric_name=="Kerr":
                     self.g:float = 0
-                elif self.metric_name=="Hay":
-                    self.g:float = kwargs[kwarg] * self.g_max * self.M
-                elif self.metric_name=="Bar":
+                elif self.metric_name in ["Hay", "Bar", "EB", "GCSV"]:
                     self.g:float = kwargs[kwarg] * self.g_max * self.M
                 elif self.metric_name=="KS":
                     self.g:float = kwargs[kwarg] * self.M
                 elif self.metric_name=="RN":
                     self.g:float = kwargs[kwarg] * np.sqrt(self.M**2-self.a**2)
+            
             try:
                 self.__setattr__(kwarg,kwargs[kwarg])
             except:

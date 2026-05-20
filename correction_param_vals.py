@@ -104,10 +104,10 @@ for i,aval in enumerate(a):
 list_of_a = a.tolist()
 dictionary = {
     "a_vals": list_of_a,
-    "g_hay": list_of_g_hay,
-    "g_bar": list_of_g_bar,
-    "g_gcsv": list_of_g_gcsv,
-    "g_eb": list_of_g_eb
+    "g": {"Hay":list_of_g_hay,
+        "Bar": list_of_g_bar,
+        "GCSV": list_of_g_gcsv,
+        "EB": list_of_g_eb}
 }
 
 with open("param_vals.txt", "w") as file:
