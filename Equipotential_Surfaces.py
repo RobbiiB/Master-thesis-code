@@ -5,7 +5,7 @@ from space_time_config import Spacetime_config as stc
 
 class Equipotential_surface():
     def __init__(self, metric_name:str, g_max_frac:float = 0, a:float=0.01, M:float = 1, L:str="const", g_max:float = 0):
-        self.spacetime_config = stc(metric_name=metric_name, g_max_frac=g_max_frac,a = a, M = M, L=L,g_max = g_max)
+        self.spacetime_config = stc(metric_name=metric_name, g_max_frac=g_max_frac,a = a, M = M, L=L)
         
     def update_params(self,**kwargs):
         self.spacetime_config.update_params(kwargs=kwargs)
