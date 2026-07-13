@@ -48,23 +48,94 @@ class Density_distribution():
         
         return rho, coords
     
-    def plot_in_polar(self, data, coords, cmap = "viridis_r", log_offset:float=0.001):
+    def rho2(self, N:int, r_min:float=3.5, r_max:float=30,max_fill_r:float=25,normalized:bool=True): ##density distribution for gamma=1 and K=G/r
+        W,coords = self.W(N=N, r_min=r_min, r_max=r_max)
+        
+        # I:np.ndarray = self.solve_I(W=W,coords=coords,N=N)
+        # # print(I)
+        # Kr = 10*self.eps.spacetime_config.M
+        # K=Kr/coords[0]
+        h=np.exp(-W)
+
+        r_ind=np.argmax(coords[0][0]>=max_fill_r)
+        th_ind=-1
+        h_0 = h[th_ind,r_ind]
+        
+        gamma=5/3
+        K=100
+        h_bar=h-h_0
+        # rho=W
+        # print(rho)
+
+        h_bar = np.where(h_bar>0,h_bar, 0.00000001)
+        rho = (h_bar)#**(2/(gamma-1))#((gamma-1)/(2*np.sqrt(K*gamma)))**(2/(gamma-1)) *
+
+        if normalized:
+            rho = rho/np.max(rho)
+
+        # rho=np.where(rho<=rho[0][0], rho, rho[0][0])
+
+
+        return rho, coords#, W, K, I
+        
+        pass
+    
+    def solve_I(self,W,coords, N):
+        r = coords[0].T
+        th = coords[1].T
+        h = np.exp(-W).T
+        dr = (np.max(r)-np.min(r))/N
+
+        I=np.zeros(np.shape(r))
+        for n in range(N):
+            I[n] = I[n-1]+ h[n]*dr
+
+        return I.T
+        pass
+
+
+    def plot_in_polar(self, data, coords, cmap = "viridis_r", log_offset:float=0.0000001, color_norm:bool=True):
         x_vals = coords[0]*np.sin(coords[1])
         y_vals = coords[0]*np.cos(coords[1])
-        im = plt.pcolormesh(x_vals,y_vals, data, edgecolors="face", cmap=cmap, norm=colors.LogNorm(vmin=np.min(data)+log_offset, vmax=np.max(data)+log_offset))
+        if color_norm:
+            im = plt.pcolormesh(x_vals,y_vals, data, edgecolors="face", cmap=cmap, norm=colors.LogNorm(vmin=np.min(data)+log_offset, vmax=np.max(data)+log_offset))
+        else:
+            im = plt.pcolormesh(x_vals,y_vals, data, edgecolors="face", cmap=cmap)
         plt.colorbar(im)
         plt.ylabel("z")
         plt.xlabel(r"$\rho$")
+
         
         
         
         
 if __name__=="__main__":
-    dd = Density_distribution(metric_name="Kerr", g_max_frac=0, a=0.9, L_type="const")
+    dd = Density_distribution(metric_name="Kerr", g_max_frac=0, a=0.5, L_type="const")
+    dd2 = Density_distribution(metric_name="Hay", g_max_frac=1, a=0.5, L_type="const")
 
-    W, coords=dd.W(N=1000,r_min=5)
 
-    dd.plot_in_polar(W,coords)
+    N = 2000000 ## maximum number of steps (this will probably not be reached)
+    dr = -0.0001 ## the step siz in the r direction
+    th_0 = np.pi/2+0.0001 ## the initial value of theta, not that it is not exactly 0.5*pi as that would be problematic 
+    ## inital values for different runs of r 
+    r_0 = 20
+    r_1 = 25 
 
+    rho,coords = dd.rho2(N=1000)
+    rho2,coords2 = dd2.rho2(N=1000)
+    # r,th = dd.eps.solve_loop(N,r_0,dr,th_0)
+    # r2,th2 = dd.eps.solve_loop(N,r_1,dr,th_0)
+    delta_rho = rho-rho2
+    delta_rho=delta_rho
+    #dd.plot_in_polar(rho,coords=coords)
+    dd.plot_in_polar(rho2,coords=coords2,cmap="viridis")#, color_norm=False)
+    def rth_to_xz(r,th)->tuple:
+        x =r*np.sin(th)
+        z=-r*np.cos(th)
+        return (x,z)
+    # x,z = rth_to_xz(r,th)
+    # plt.plot(x,z, c = "r")
+    # x2,z2 = rth_to_xz(r2,th2)
+    # plt.plot(x2,z2, c = "r")
     plt.show()
     
