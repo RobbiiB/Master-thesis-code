@@ -48,7 +48,7 @@ class Density_distribution():
         
         return rho, coords
     
-    def rho2(self, N:int, r_min:float=3.5, r_max:float=30,max_fill_r:float=25,normalized:bool=True): ##density distribution for gamma=1 and K=G/r
+    def rho2(self, N:int, r_min:float=3.5, r_max:float=30,max_fill_r:float=30,normalized:bool=True): ##density distribution for gamma=1 and K=G/r
         W,coords = self.W(N=N, r_min=r_min, r_max=r_max)
         
         # I:np.ndarray = self.solve_I(W=W,coords=coords,N=N)
@@ -68,7 +68,7 @@ class Density_distribution():
         # print(rho)
 
         h_bar = np.where(h_bar>0,h_bar, 0.00000001)
-        rho = (h_bar)#**(2/(gamma-1))#((gamma-1)/(2*np.sqrt(K*gamma)))**(2/(gamma-1)) *
+        rho = (h_bar)**(2/(gamma-1))#((gamma-1)/(2*np.sqrt(K*gamma)))**(2/(gamma-1)) *
 
         if normalized:
             rho = rho/np.max(rho)
@@ -128,7 +128,7 @@ if __name__=="__main__":
     delta_rho = rho-rho2
     delta_rho=delta_rho
     #dd.plot_in_polar(rho,coords=coords)
-    dd.plot_in_polar(rho2,coords=coords2,cmap="viridis")#, color_norm=False)
+    dd.plot_in_polar(rho2,coords=coords2,cmap="magma")#, color_norm=False)
     def rth_to_xz(r,th)->tuple:
         x =r*np.sin(th)
         z=-r*np.cos(th)
