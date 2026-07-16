@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from space_time_config import Spacetime_config as stc
 
 class Equipotential_surface():
-    def __init__(self, metric_name:str, g_max_frac:float = 0, a:float=0.01, M:float = 1, L:str="const", g_max:float = 0):
+    def __init__(self, metric_name:str, g_max_frac:float = 0, a:float=0.01, M:float = 1, L:str="const"):
         self.spacetime_config = stc(metric_name=metric_name, g_max_frac=g_max_frac,a = a, M = M, L=L)
         
     def update_params(self,**kwargs):
@@ -128,7 +128,7 @@ class Equipotential_surface():
     def f(self,r,theta)->float:
         return self.spacetime_config.f(r,theta)
     
-    def solve_loop(self,N,r_0,dr, th_0 = np.pi/2):
+    def solve_loop(self,N,r_0,dr, th_0 = np.pi/2,r_min:float=3.0):
         th = np.array([th_0])
         r = np.array([r_0])
         dth = 0
@@ -143,7 +143,7 @@ class Equipotential_surface():
             # print(r)
             # print(r)
             # print(th)
-            if r[-1]<2.5*self.spacetime_config.M:
+            if r[-1]<r_min*self.spacetime_config.M:
                 break
             if np.cos(th[-1])>0:
                 r=r[:-1]

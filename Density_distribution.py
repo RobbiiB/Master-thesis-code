@@ -5,8 +5,8 @@ from Equipotential_Surfaces import Equipotential_surface as EqPot
 import matplotlib.colors as colors
 
 class Density_distribution():
-    def __init__(self, metric_name:str="Kerr", g_max_frac:float=0.0, a:float=0.01, L_type:str = "const", g_max:float=0):
-        self.eps = EqPot(metric_name=metric_name, g_max_frac=g_max_frac, a=a, L=L_type, g_max=g_max)
+    def __init__(self, metric_name:str="Kerr", g_max_frac:float=0.0, a:float=0.01, L_type:str = "const"):
+        self.eps = EqPot(metric_name=metric_name, g_max_frac=g_max_frac, a=a, L=L_type)
     
     def update_params(self,**kwargs):
         self.eps.spacetime_config.update_params(kwargs=kwargs)
@@ -41,10 +41,25 @@ class Density_distribution():
 
         return W_rth, (r,th)
     
-    def rho(self, N:int, K:float, gamma:float, r_min:float=3, r_max:float=30):
+    def rho(self, N:int, gamma:float, r_min:float=3, r_max:float=30, max_fill_r:float=30, normalized:bool=True,K:float|None=None):
         W,coords = self.W(N=N, r_min=r_min, r_max=r_max)
 
-        rho = ((gamma-1)*(np.exp(-W) - 1)/(K*gamma))**(1/(gamma-1))
+        h=np.exp(-W)
+
+        r_ind=np.argmax(coords[0][0]>=max_fill_r)
+        th_ind=-1
+        h_0 = h[th_ind,r_ind]
+        h_bar=h-h_0
+        h_bar = np.where(h_bar>0,h_bar, 0.00000001)
+
+
+        if K!=None:
+            rho = ((gamma-1)*(h_bar)/(K*gamma))**(1/(gamma-1))
+        else:
+            rho = h_bar**(1/(gamma-1))
+    
+        if normalized:
+            rho = rho/np.max(rho)
         
         return rho, coords
     
@@ -100,7 +115,7 @@ class Density_distribution():
         if color_norm:
             im = plt.pcolormesh(x_vals,y_vals, data, edgecolors="face", cmap=cmap, norm=colors.LogNorm(vmin=np.min(data)+log_offset, vmax=np.max(data)+log_offset))
         else:
-            im = plt.pcolormesh(x_vals,y_vals, data, edgecolors="face", cmap=cmap)
+            im = plt.pcolormesh(x_vals,y_vals, data, edgecolors="face", cmap=cmap, vmin=np.min([np.min(data),-np.max(data)]), vmax=-np.min([np.min(data),-np.max(data)]))
         plt.colorbar(im)
         plt.ylabel("z")
         plt.xlabel(r"$\rho$")

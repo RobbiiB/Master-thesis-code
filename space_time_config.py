@@ -36,8 +36,13 @@ class Spacetime_config():
     def update_params(self,kwargs):
         # print(kwargs)
         for kwarg in kwargs:
+            try:
+                self.__setattr__(kwarg,kwargs[kwarg])
+            except:
+                print(f"{kwarg} is not a valid kwarg")
+            
             if kwarg == "a":
-                self.a = kwargs["a"]
+                # self.a = kwargs["a"]
                 with open("param_vals.txt", "r") as file:
                     param_values = json.load(file)
                 file.close
@@ -55,10 +60,7 @@ class Spacetime_config():
                 elif self.metric_name=="RN":
                     self.g:float = kwargs[kwarg] * np.sqrt(self.M**2-self.a**2)
             
-            try:
-                self.__setattr__(kwarg,kwargs[kwarg])
-            except:
-                print(f"{kwarg} is not a valid kwarg")
+            
     
     def Omega(self,r,theta)->float:
         if self.Omg_type =="const":

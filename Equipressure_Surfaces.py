@@ -5,7 +5,7 @@ from space_time_config import Spacetime_config as stc
 
     
 class Equipressure_surface():
-    def __init__(self, metric_name:str, g_max_frac:float = 0, a:float=0.01, M:float = 1, L:str="const", omg:str = "const", g_max:float = 0):
+    def __init__(self, metric_name:str, g_max_frac:float = 0, a:float=0.01, M:float = 1, L:str="const", omg:str = "const"):
         self.spacetime_config = stc(metric_name=metric_name, g_max_frac=g_max_frac,a = a, M = M, L=L, omg=omg)
         
     def update_params(self,**kwargs):
