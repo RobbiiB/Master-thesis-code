@@ -117,7 +117,7 @@ class Spacetime_config():
         elif self.metric_name == "Zha": 
             m=M - g**2/(2*r)*(1-4*M/r +4*M**2/r**2)
             return m 
-        elif self.metric_name == "RN": ##Reissner Nordstrom
+        elif self.metric_name == "RN": #kerr newmann
             m = M-g**2/(2*r)
             return m 
         elif self.metric_name == "EB":

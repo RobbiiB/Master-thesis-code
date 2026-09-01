@@ -41,7 +41,7 @@ class Density_distribution():
 
         return W_rth, (r,th)
     
-    def rho(self, N:int, gamma:float, r_min:float=3, r_max:float=30, max_fill_r:float=30, normalized:bool=True,K:float|None=None):
+    def rho(self, N:int, gamma:float, r_min:float=3, r_max:float=30, max_fill_r:float=30, normalized:bool=True,K:float|None=None, K_const_bool:bool=True, **kwarg):
         W,coords = self.W(N=N, r_min=r_min, r_max=r_max)
 
         h=np.exp(-W)
@@ -52,8 +52,21 @@ class Density_distribution():
         h_bar=h-h_0
         h_bar = np.where(h_bar>0,h_bar, 0.00000001)
 
+        if not K_const_bool:
+            try:
+                K_func:np.ndarray=kwarg["K_func"](coords[0])
+                inv_K_deriv = kwarg["inv_K_deriv"]
+                C = self.solve_C(inv_K_deriv,h,coords,N)
+                rho = (gamma-1)/gamma *(h/K_func + C)
+            except:
+                print("something went wrong")
+                rho=0*h_bar
+            
+        
+            pass
 
-        if K!=None:
+
+        elif type(K)==float:
             rho = ((gamma-1)*(h_bar)/(K*gamma))**(1/(gamma-1))
         else:
             rho = h_bar**(1/(gamma-1))
@@ -63,6 +76,21 @@ class Density_distribution():
         
         return rho, coords
     
+    def solve_C(self,inv_K_deriv,h,coords,N):
+        r = coords[0].T
+        th = coords[1].T
+        h_transpost = h.T
+        dr = (np.max(r)-np.min(r))/N
+
+        C=np.zeros(np.shape(r))
+        for n in range(N):
+            C[n] = C[n-1]+ h[n]*inv_K_deriv(r[n])*dr
+        
+        return C.T
+
+
+
+
     def rho2(self, N:int, r_min:float=3.5, r_max:float=30,max_fill_r:float=30,normalized:bool=True): ##density distribution for gamma=1 and K=G/r
         W,coords = self.W(N=N, r_min=r_min, r_max=r_max)
         
@@ -83,7 +111,7 @@ class Density_distribution():
         # print(rho)
 
         h_bar = np.where(h_bar>0,h_bar, 0.00000001)
-        rho = (h_bar)**(2/(gamma-1))#((gamma-1)/(2*np.sqrt(K*gamma)))**(2/(gamma-1)) *
+        rho = (h_bar)**(1/(gamma-1))#((gamma-1)/(2*np.sqrt(K*gamma)))**(2/(gamma-1)) *
 
         if normalized:
             rho = rho/np.max(rho)
@@ -119,6 +147,8 @@ class Density_distribution():
         plt.colorbar(im)
         plt.ylabel("z")
         plt.xlabel(r"$\rho$")
+
+
 
         
         

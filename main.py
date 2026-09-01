@@ -132,10 +132,12 @@ if __name__=="__main__":
     ##calculating the density distribution
     """
     a_span:list = [0.5,0.6,0.7,0.8,0.9,1]
-    g_span:list = [0,0.2,0.4,0.6,0.8,1]
+    g_span:list = [0.2,0.4,0.6,0.8,1]
     
-    metric_name:str="Hay"
+    metric_name:str="GCSV"
     L_type:str = "const"
+
+
 
     plt.figure()
     for j,g_frac in enumerate(g_span):
@@ -169,10 +171,11 @@ if __name__=="__main__":
             plt.savefig(fname=f"/Users/robin/Documents/Master thesis 1/figs/densities/{metric_name}_{a}_g_{g_frac}.pdf")
             # plt.show()
             plt.clf()
-    """        
+    #"""        
 
+    
     ##Comparing metrics with Kerr
-     
+    """
          
     a_span:list = [0.5,0.6,0.7,0.8,0.9,1]
     g_span:list = [0,0.2,0.4,0.6,0.8,1]
@@ -210,3 +213,26 @@ if __name__=="__main__":
 
 
             #'/Users/robin/Documents/Master thesis 1/figs/density_comp'
+    #"""
+
+    ##plotting correction vals
+
+    with open("param_vals.txt", "r") as file:
+        param_values = json.load(file)
+        file.close
+    
+    # print(param_values)
+
+
+    metric_name="GCSV"
+    a_vals = param_values["a_vals"]
+    g_vals = param_values["g"][metric_name]
+
+    plt.figure()
+    plt.plot(a_vals,g_vals, 'k')
+    plt.xlabel("|a|/m")
+    plt.ylabel("|g|/m")
+
+    plt.fill_between(a_vals,g_vals, alpha=0.4, color="k")
+    plt.savefig(f"/Users/robin/Documents/Master thesis 1/figs/g_vals/{metric_name}.pdf")
+    plt.show()
