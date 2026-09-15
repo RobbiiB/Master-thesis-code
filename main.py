@@ -216,7 +216,7 @@ if __name__=="__main__":
     #"""
 
     ##plotting correction vals
-
+    """
     with open("param_vals.txt", "r") as file:
         param_values = json.load(file)
         file.close
@@ -236,3 +236,103 @@ if __name__=="__main__":
     plt.fill_between(a_vals,g_vals, alpha=0.4, color="k")
     plt.savefig(f"/Users/robin/Documents/Master thesis 1/figs/g_vals/{metric_name}.pdf")
     plt.show()
+    #"""
+
+    """
+    a_span:list = [0.5,0.6,0.7,0.8,0.9,1]
+    g_span:list = [0,0.2,0.4,0.6,0.8,1]
+
+    metric_name:str="RN"
+    L_type:str = "const"
+    N_dd=1000
+    gamma=5/3
+    max_extension=25
+    target_M=10
+    for i,a in enumerate(a_span):
+        for j,g_frac in enumerate(g_span):
+            g_max_frac:float=g_frac
+            a:float=a
+            dd=DenDist(metric_name=metric_name,g_max_frac=g_max_frac,a=a,L_type=L_type)
+
+            r_max_extension = max_extension
+
+            while True:
+                rho,coords=dd.rho(N=N_dd,gamma=gamma, max_fill_r=r_max_extension,normalized=False)
+            # print(np.shape(rho))
+            # print(np.shape(coords[0]))
+
+
+                m = dd.disk_mass(rho,coords)
+                dr = dd.max_extention_mass_calc(target_M=target_M,m=m,step_size=0.1,tolerance=0.05)
+                
+                if dr==0:
+                    break
+                else:
+                    r_max_extension+=dr
+                    print((target_M-m)/target_M)
+            
+
+            dd.plot_in_polar(data=rho,coords=coords,cmap="magma")
+            print(f"\t{(i+1)*100//len(a_span)}%")
+            plt.savefig(fname=f"/Users/robin/Documents/Master thesis 1/figs/densities_with_constant_mass/{metric_name}_{a}_g_{g_frac}.pdf")
+            # plt.show()
+            plt.clf()
+
+    #"""
+
+    #'/Users/robin/Documents/Master thesis 1/figs/densities_with_const_mass_comp'
+
+    a_span:list = [0.5,0.6,0.7,0.8,0.9,1]
+    g_span:list = [0.2,0.4,0.6,0.8,1]
+
+    metric_name:str="RN"
+    L_type:str = "const"
+    N_dd=1000
+    gamma=5/3
+    max_extension=25
+    target_M=10
+    r_max_kerr=25
+    r_max_extension = max_extension
+    for i,a in enumerate(a_span):
+        dd_kerr = DenDist(metric_name="Kerr", g_max_frac=0,a=a,L_type=L_type)
+
+        while True:
+            rho_kerr,coords = dd_kerr.rho(N=N_dd, gamma=gamma, max_fill_r=r_max_kerr,normalized=False)
+            m_kerr=dd_kerr.disk_mass(rho_kerr,coords)
+            dr = dd_kerr.max_extention_mass_calc(target_M, m_kerr,step_size=0.1,tolerance=0.05)
+            if dr==0:
+                    break
+            else:
+                r_max_kerr+=dr
+                print((target_M-m_kerr)/target_M)
+
+        for j,g_frac in enumerate(g_span):
+            g_max_frac:float=g_frac
+            a:float=a
+            dd=DenDist(metric_name=metric_name,g_max_frac=g_max_frac,a=a,L_type=L_type)
+
+            
+
+            while True:
+                rho,coords=dd.rho(N=N_dd,gamma=gamma, max_fill_r=r_max_extension,normalized=False)
+            # print(np.shape(rho))
+            # print(np.shape(coords[0]))
+
+
+                m = dd.disk_mass(rho,coords)
+                dr = dd.max_extention_mass_calc(target_M=target_M,m=m,step_size=0.1,tolerance=0.05)
+                
+                if dr==0:
+                    break
+                else:
+                    r_max_extension+=dr
+                    print((target_M-m)/target_M)
+            
+
+            delta_rho = rho-rho_kerr
+
+            dd.plot_in_polar(data=delta_rho,coords=coords,cmap="seismic",color_norm=False)
+            print(f"\t{(i+1)*100//len(a_span)}%")
+            plt.savefig(fname=f"/Users/robin/Documents/Master thesis 1/figs/densities_with_const_mass_comp/{metric_name}_{a}_g_{g_frac}.pdf")
+            # plt.show()
+            plt.clf()

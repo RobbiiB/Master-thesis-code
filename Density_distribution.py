@@ -76,6 +76,33 @@ class Density_distribution():
         
         return rho, coords
     
+    def disk_mass(self,rho,coords):
+        r=coords[0]
+        dr = coords[0][0][1:] - coords[0][0][:-1]
+
+
+        dth=coords[1][1:][0] - coords[1][:-1][0]
+    
+        dr=np.pad(dr, (0,1),"edge")
+        # print(len(dr))
+        # dth=np.pad(dth,(1,0),"edge")
+        # print(len(dth))
+
+        dcoords = np.meshgrid(dr,dth)
+        # print(np.shape(dcoords[0]))
+
+        m = 2*np.pi * np.sum(r**2 * rho *dcoords[0]*dcoords[1])
+        
+        return m
+
+    def max_extention_mass_calc(self, target_M, m,step_size,tolerance=0.01):
+        if abs(target_M-m)<=tolerance:
+            return 0
+        else:
+            dr_new = step_size*(target_M-m)
+            return dr_new
+
+
     def solve_C(self,inv_K_deriv,h,coords,N):
         r = coords[0].T
         th = coords[1].T
