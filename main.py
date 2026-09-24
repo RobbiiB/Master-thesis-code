@@ -285,7 +285,7 @@ if __name__=="__main__":
     a_span:list = [0.5,0.6,0.7,0.8,0.9,1]
     g_span:list = [0.2,0.4,0.6,0.8,1]
 
-    metric_name:str="RN"
+    metric_name:str="Zha"
     L_type:str = "const"
     N_dd=1000
     gamma=5/3
@@ -293,8 +293,11 @@ if __name__=="__main__":
     target_M=10
     r_max_kerr=25
     r_max_extension = max_extension
+    dd_kerr = DenDist(metric_name="Kerr", g_max_frac=0,a=1,L_type=L_type)
+    dd=DenDist(metric_name=metric_name,g_max_frac=0,a=1,L_type=L_type)
     for i,a in enumerate(a_span):
-        dd_kerr = DenDist(metric_name="Kerr", g_max_frac=0,a=a,L_type=L_type)
+        dd_kerr.update_params(a=a)
+        dd.update_params(a=a)
 
         while True:
             rho_kerr,coords = dd_kerr.rho(N=N_dd, gamma=gamma, max_fill_r=r_max_kerr,normalized=False)
@@ -307,17 +310,11 @@ if __name__=="__main__":
                 print((target_M-m_kerr)/target_M)
 
         for j,g_frac in enumerate(g_span):
-            g_max_frac:float=g_frac
-            a:float=a
-            dd=DenDist(metric_name=metric_name,g_max_frac=g_max_frac,a=a,L_type=L_type)
-
-            
-
+            dd.update_params(g_max_frac=g_frac)
             while True:
                 rho,coords=dd.rho(N=N_dd,gamma=gamma, max_fill_r=r_max_extension,normalized=False)
             # print(np.shape(rho))
             # print(np.shape(coords[0]))
-
 
                 m = dd.disk_mass(rho,coords)
                 dr = dd.max_extention_mass_calc(target_M=target_M,m=m,step_size=0.1,tolerance=0.05)
@@ -336,3 +333,4 @@ if __name__=="__main__":
             plt.savefig(fname=f"/Users/robin/Documents/Master thesis 1/figs/densities_with_const_mass_comp/{metric_name}_{a}_g_{g_frac}.pdf")
             # plt.show()
             plt.clf()
+            

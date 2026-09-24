@@ -28,7 +28,7 @@ class Spacetime_config():
             self.g:float = 0
         elif self.metric_name in ["Hay","Bar", "EB", "GCSV"]:
             self.g:float = g_max_frac * self.g_max * self.M
-        elif self.metric_name=="KS":
+        elif self.metric_name=="KS" or self.metric_name=="Zha":
             self.g:float = g_max_frac * self.M
         elif self.metric_name=="RN":
             self.g:float = g_max_frac * np.sqrt(self.M**2-self.a**2)
@@ -41,7 +41,7 @@ class Spacetime_config():
             except:
                 print(f"{kwarg} is not a valid kwarg")
             
-            if kwarg == "a":
+            if kwarg == "a" and self.metric_name in ["Hay","Bar", "EB", "GCSV"]:
                 # self.a = kwargs["a"]
                 with open("param_vals.txt", "r") as file:
                     param_values = json.load(file)
@@ -55,7 +55,7 @@ class Spacetime_config():
                     self.g:float = 0
                 elif self.metric_name in ["Hay", "Bar", "EB", "GCSV"]:
                     self.g:float = kwargs[kwarg] * self.g_max * self.M
-                elif self.metric_name=="KS":
+                elif self.metric_name=="KS" or self.metric_name=="Zha":
                     self.g:float = kwargs[kwarg] * self.M
                 elif self.metric_name=="RN":
                     self.g:float = kwargs[kwarg] * np.sqrt(self.M**2-self.a**2)
