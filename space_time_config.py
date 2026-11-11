@@ -130,7 +130,7 @@ class Spacetime_config():
             self.__setattr__("metric_name", "Kerr")
             return M
         
-    def drm_func(self,r)->float:
+    def drm_func(self,r)->float: #derivative of the mass function 
         M = self.M
         g = self.g
         if self.metric_name == "KS":

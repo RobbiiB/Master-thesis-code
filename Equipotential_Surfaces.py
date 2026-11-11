@@ -55,7 +55,7 @@ class Equipotential_surface():
         dth_W = sin*cos*(D*psi-D*sin**2*2*a*M*r*(l**2*a +2*a*sin**2*(r**2+a**2) - 2*l*(r**2+a**2))/S**2-r**2-a**2)
         return dth_W
 
-    def dr_th(self,r,theta):
+    def dr_th(self,r,theta): #equation 2.12
         M = self.mass_func(r)
         M_ = self.drm_func(r)
         a = self.spacetime_config.a
@@ -128,7 +128,7 @@ class Equipotential_surface():
     def f(self,r,theta)->float:
         return self.spacetime_config.f(r,theta)
     
-    def solve_loop(self,N,r_0,dr, th_0 = np.pi/2,r_min:float=3.0):
+    def solve_loop(self,N,r_0,dr, th_0 = np.pi/2,r_min:float=3.0): #solving for the equipotential surface 
         th = np.array([th_0])
         r = np.array([r_0])
         dth = 0

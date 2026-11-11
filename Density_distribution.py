@@ -8,23 +8,23 @@ class Density_distribution():
     def __init__(self, metric_name:str="Kerr", g_max_frac:float=0.0, a:float=0.01, L_type:str = "const"):
         self.eps = EqPot(metric_name=metric_name, g_max_frac=g_max_frac, a=a, L=L_type)
     
-    def update_params(self,**kwargs):
+    def update_params(self,**kwargs): 
         self.eps.spacetime_config.update_params(kwargs=kwargs)
         
 
-    def zx_to_rth(self, z:np.ndarray,x:np.ndarray):
+    def zx_to_rth(self, z:np.ndarray,x:np.ndarray): # converting cartesian to polar coordinates
         r= x**2 + z**2
         th = np.tan(z/x)
         return r,th
 
-    def create_point_grid(self,r_max,r_min, N_r:int=100,N_th:int=100):
+    def create_point_grid(self,r_max,r_min, N_r:int=100,N_th:int=100): 
         r_linspace = np.linspace(r_min,r_max,N_r)
         th_linspace = np.linspace(np.pi/4,np.pi/2, N_th, endpoint=True)
 
         r,th = np.meshgrid(r_linspace,th_linspace)
         return r,th
     
-    def mask(self, z_max:float, x_max:float, N:int=100, r_min:float = 2):
+    def mask(self, z_max:float, x_max:float, N:int=100, r_min:float = 2): #masks out the black hole
         z_linspace = np.linspace(0,z_max,N)
         x_linspace = np.linspace(0,x_max,N)
 
@@ -34,7 +34,7 @@ class Density_distribution():
         mask = np.where(r2<r_min**2, 0, 1)
         return mask
         
-    def W(self, N:int=100, r_min:float=3, r_max:float = 30):
+    def W(self, N:int=100, r_min:float=3, r_max:float = 30): 
         r,th = self.create_point_grid(r_max=r_max,r_min=r_min, N_r=N,N_th=N)
 
         W_rth = self.eps.W(r=r,theta=th)
@@ -61,11 +61,6 @@ class Density_distribution():
             except:
                 print("something went wrong")
                 rho=0*h_bar
-            
-        
-            pass
-
-
         elif type(K)==float:
             rho = ((gamma-1)*(h_bar)/(K*gamma))**(1/(gamma-1))
         else:
@@ -76,7 +71,7 @@ class Density_distribution():
         
         return rho, coords
     
-    def disk_mass(self,rho,coords):
+    def disk_mass(self,rho,coords): 
         r=coords[0]
         dr = coords[0][0][1:] - coords[0][0][:-1]
 
@@ -84,18 +79,14 @@ class Density_distribution():
         dth=coords[1][1:][0] - coords[1][:-1][0]
     
         dr=np.pad(dr, (0,1),"edge")
-        # print(len(dr))
-        # dth=np.pad(dth,(1,0),"edge")
-        # print(len(dth))
 
         dcoords = np.meshgrid(dr,dth)
-        # print(np.shape(dcoords[0]))
 
         m = 2*np.pi * np.sum(r**2 * rho *dcoords[0]*dcoords[1])
         
         return m
 
-    def max_extention_mass_calc(self, target_M, m,step_size,tolerance=0.01):
+    def max_extention_mass_calc(self, target_M, m,step_size,tolerance=0.01): #calculating the update to the maximum extension based on the difference between the disk mass and the target mass
         if abs(target_M-m)<=tolerance:
             return 0
         else:
@@ -103,10 +94,8 @@ class Density_distribution():
             return dr_new
 
 
-    def solve_C(self,inv_K_deriv,h,coords,N):
+    def solve_C(self,inv_K_deriv,h,coords,N): #calculating the additional function C when K is not constant
         r = coords[0].T
-        th = coords[1].T
-        h_transpost = h.T
         dr = (np.max(r)-np.min(r))/N
 
         C=np.zeros(np.shape(r))
@@ -164,7 +153,7 @@ class Density_distribution():
         pass
 
 
-    def plot_in_polar(self, data, coords, cmap = "viridis_r", log_offset:float=0.0000001, color_norm:bool=True):
+    def plot_in_polar(self, data, coords, cmap = "viridis_r", log_offset:float=0.0000001, color_norm:bool=True): #plots the data in polar coordinates
         x_vals = coords[0]*np.sin(coords[1])
         y_vals = coords[0]*np.cos(coords[1])
         if color_norm:
