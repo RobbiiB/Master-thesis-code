@@ -185,11 +185,13 @@ if __name__=="__main__":
 
     # """
     folder_path:str= "/Users/robin/Documents/Master thesis 1"
+    diff_filename:str = "sum_diff.txt"
+    diff2_filename:str = "sum_diff2.txt"
 
     a_span:list = [0.5,0.6,0.7,0.8,0.9,1]
     g_span:list = [0.2,0.4,0.6,0.8,1]
 
-    metric_name:str="RN" #metric name from ["Kerr", "Hay","Bar", "EB", "GCSV", "KS", "Zha", "RN"]
+    metric_name:str="KS" #metric name from ["Kerr", "Hay","Bar", "EB", "GCSV", "KS", "Zha", "RN"]
     L_type:str = "const"
     N_dd=1000
     gamma=5/3
@@ -201,11 +203,36 @@ if __name__=="__main__":
     dd_kerr = DenDist(metric_name="Kerr", g_max_frac=0,a=1,L_type=L_type) #initializing the density distribution object for the kerr metric
     dd=DenDist(metric_name=metric_name,g_max_frac=0,a=1,L_type=L_type) #initializing the density distribution object
 
+
+    print("Reading %s" % diff_filename)
+    try:
+        with open(diff_filename, "rt") as fp:
+            diff_dict = json.load(fp)
+        print("Loaded data from %s" % diff_filename)
+    except:
+        print("Could not read file, starting from scratch")
+        diff_dict = {}
+
+    print("Reading %s" % diff2_filename)
+    try:
+        with open(diff2_filename, "rt") as fp:
+            diff2_dict = json.load(fp)
+        print("Loaded data from %s" % diff2_filename)
+    except:
+        print("Could not read file, starting from scratch")
+        diff2_dict = {}
+
+
+    metric_diff_dict:dict = {}
+    metric_diff2_dict:dict = {}
     for i,a in enumerate(a_span):
         dd_kerr.update_params(a=a) #updating the kerr metric spin 
         dd.update_params(a=a) #updating the metric spin
 
         rho_kerr,coords,r_max_kerr = dd_kerr.rho_fixed_mass(target_M=target_M, N=N_dd,gamma=gamma)
+
+        metric_diff_dict[a] = []
+        metric_diff2_dict[a] = []
 
         for j,g_frac in enumerate(g_span):
             dd.update_params(g_max_frac=g_frac) #updating the metric deformation parameter
@@ -215,15 +242,30 @@ if __name__=="__main__":
 
             delta_rho = rho-rho_kerr #calculating the difference with the kerr metric 
 
+            metric_diff_dict[a].append(np.sum(delta_rho))
+            metric_diff2_dict[a].append(np.sum(delta_rho**2))
+
+
             dd.plot_in_polar(data=delta_rho,coords=coords,cmap="seismic",color_norm=False)
             print(f"\t{(i*len(g_span)+j + 1)*100//(len(a_span)*len(g_span))}%")
-            
-            
-            
+                
             png_file_path:str = path.join(folder_path,"figs","densities_with_const_mass_comp",f"{metric_name}_{a}_g_{g_frac}.png")
 
             plt.savefig(fname=png_file_path)
             # plt.show()
             plt.clf()
+    
+    diff_dict[metric_name] = metric_diff_dict
+    diff2_dict[metric_name] = metric_diff2_dict
+
+    print("Overwriting %s" % diff_filename)
+    with open(diff_filename, "wt") as fp:
+        json.dump(diff_dict, fp)
+    print("Overwriting %s" % diff2_filename)
+    with open(diff2_filename, "wt") as fp:
+        json.dump(diff2_dict, fp)
+    
+    
     #"""
             
+    #### 
