@@ -167,21 +167,11 @@ if __name__=="__main__":
 
             r_max_extension = max_extension
 
-            while True: #calculating the density distribution based on the total accretion disk mass
-                rho,coords=dd.rho(N=N_dd,gamma=gamma, max_fill_r=r_max_extension,normalized=False)
-
-                m = dd.disk_mass(rho,coords)
-                dr = dd.max_extention_mass_calc(target_M=target_M,m=m,step_size=0.1,tolerance=0.05) #calculating the update to the maximum extension based on the calculated accretion disk mass. 
-                
-                if dr==0:
-                    break
-                else:
-                    r_max_extension+=dr
-                    # print((target_M-m)/target_M)
+            rho,coords,r_max_extension = dd.rho_fixed_mass(target_M=target_M,N=N_dd,gamma=gamma) #disk mass matched exactly by root finding on the outer radius
             
 
             dd.plot_in_polar(data=rho,coords=coords,cmap="magma")
-            print(f"\t{(i+1)*100//len(a_span)}%")
+            print(f"\t{(i*len(g_span)+j+1)*100//(len(a_span)*len(g_span))}%")
 
             png_file_path:str = path.join(folder_path,"figs","densities_with_constant_mass",f"{metric_name}_{a}_g_{g_frac}.png")
 
@@ -193,20 +183,19 @@ if __name__=="__main__":
 
     #### Fixed mass accretion disk comparison with Kerr####
 
-    """
+    # """
     folder_path:str= "/Users/robin/Documents/Master thesis 1"
 
     a_span:list = [0.5,0.6,0.7,0.8,0.9,1]
     g_span:list = [0.2,0.4,0.6,0.8,1]
 
-    metric_name:str="Zha" #metric name from ["Kerr", "Hay","Bar", "EB", "GCSV", "KS", "Zha", "RN"]
+    metric_name:str="RN" #metric name from ["Kerr", "Hay","Bar", "EB", "GCSV", "KS", "Zha", "RN"]
     L_type:str = "const"
     N_dd=1000
     gamma=5/3
     max_extension=25 #initial maximum extension of the accretion disk
     target_M=10 #Target accretion disk mass
-    r_max_kerr=25
-    r_max_extension = max_extension
+    
 
 
     dd_kerr = DenDist(metric_name="Kerr", g_max_frac=0,a=1,L_type=L_type) #initializing the density distribution object for the kerr metric
@@ -216,36 +205,18 @@ if __name__=="__main__":
         dd_kerr.update_params(a=a) #updating the kerr metric spin 
         dd.update_params(a=a) #updating the metric spin
 
-        while True: #calculating the density distribution based on the total accretion disk mass for the Kerr metric 
-            rho_kerr,coords = dd_kerr.rho(N=N_dd, gamma=gamma, max_fill_r=r_max_kerr,normalized=False)
-            m_kerr=dd_kerr.disk_mass(rho_kerr,coords)
-            dr = dd_kerr.max_extention_mass_calc(target_M, m_kerr,step_size=0.1,tolerance=0.05)
-            if dr==0:
-                    break
-            else:
-                r_max_kerr+=dr
-                # print((target_M-m_kerr)/target_M)
+        rho_kerr,coords,r_max_kerr = dd_kerr.rho_fixed_mass(target_M=target_M, N=N_dd,gamma=gamma)
 
         for j,g_frac in enumerate(g_span):
             dd.update_params(g_max_frac=g_frac) #updating the metric deformation parameter
 
-            while True: #calculating the density distribution based on the total accretion disk mass
-                rho,coords=dd.rho(N=N_dd,gamma=gamma, max_fill_r=r_max_extension,normalized=False)
-
-                m = dd.disk_mass(rho,coords)
-                dr = dd.max_extention_mass_calc(target_M=target_M,m=m,step_size=0.1,tolerance=0.05)
-                
-                if dr==0:
-                    break
-                else:
-                    r_max_extension+=dr
-                    # print((target_M-m)/target_M)
+            rho,coords,r_max = dd.rho_fixed_mass(target_M=target_M, N=N_dd,gamma=gamma)
             
 
             delta_rho = rho-rho_kerr #calculating the difference with the kerr metric 
 
             dd.plot_in_polar(data=delta_rho,coords=coords,cmap="seismic",color_norm=False)
-            print(f"\t{(i+1)*100//len(a_span)}%")
+            print(f"\t{(i*len(g_span)+j + 1)*100//(len(a_span)*len(g_span))}%")
             
             
             

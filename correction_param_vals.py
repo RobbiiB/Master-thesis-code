@@ -32,7 +32,7 @@ def g_rr_inv_zha(r,a,g)->float:
 #     pass
 
 
-r=np.linspace(1.0,1.5,10000)
+r=np.linspace(0.5,1.5,20000)
 
 a=np.linspace(0,1,1000)
 
@@ -60,6 +60,9 @@ for i,aval in enumerate(a):
             list_of_g_hay.append(gval)
             # print(f"{len(list_of_g_hay)//10}%")
             break
+    else:
+        list_of_g_hay.append(0.0)
+
 
 list_of_g_bar=[] 
 for i,aval in enumerate(a):
@@ -70,16 +73,22 @@ for i,aval in enumerate(a):
             list_of_g_bar.append(gval)
             # print(f"{len(list_of_g_bar)//10}%")
             break
+    else:
+        list_of_g_bar.append(0.0)
+  
 
 list_of_g_gcsv=[] 
 for i,aval in enumerate(a):
     if i%10==0:
         print(f"{i//10}%")
     for jval in j_gcsv[::-1]:
-        if np.min(g_rr_inv_bar(r,aval,jval))<=0:
+        if np.min(g_rr_inv_gcsv(r,aval,jval))<=0:
             list_of_g_gcsv.append(np.sqrt(2*jval))
             # print(f"{len(list_of_g_bar)//10}%")
             break
+    else:
+        list_of_g_gcsv.append(0.0)
+
 
 list_of_g_eb=[] 
 for i,aval in enumerate(a):
@@ -90,6 +99,8 @@ for i,aval in enumerate(a):
             list_of_g_eb.append(np.sqrt(2*jval))
             # print(f"{len(list_of_g_bar)//10}%")
             break
+    else:
+        list_of_g_eb.append(0.0)
 
 # list_of_g_zha=[] 
 # for i,aval in enumerate(a):

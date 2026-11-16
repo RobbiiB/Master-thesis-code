@@ -3,6 +3,7 @@ from functools import partial
 from matplotlib import pyplot as plt
 from Equipotential_Surfaces import Equipotential_surface as EqPot
 import matplotlib.colors as colors
+from scipy.optimize import brentq
 
 class Density_distribution():
     def __init__(self, metric_name:str="Kerr", g_max_frac:float=0.0, a:float=0.01, L_type:str = "const"):
@@ -36,21 +37,24 @@ class Density_distribution():
         
     def W(self, N:int=100, r_min:float=3, r_max:float = 30): 
         r,th = self.create_point_grid(r_max=r_max,r_min=r_min, N_r=N,N_th=N)
-
         W_rth = self.eps.W(r=r,theta=th)
-
         return W_rth, (r,th)
     
-    def rho(self, N:int, gamma:float, r_min:float=3, r_max:float=30, max_fill_r:float=30, normalized:bool=True,K:float|None=None, K_const_bool:bool=True, **kwarg):
-        W,coords = self.W(N=N, r_min=r_min, r_max=r_max)
-
-        h=np.exp(-W)
-
-        r_ind=np.argmax(coords[0][0]>=max_fill_r)
-        th_ind=-1
-        h_0 = h[th_ind,r_ind]
-        h_bar=h-h_0
-        h_bar = np.where(h_bar>0,h_bar, 0.00000001)
+    def W_raw(self,N:int=100,r_min:float=3,r_max:float=30):
+        r,th = self.create_point_grid(r_max=r_max,r_min=r_min,N_r=N,N_th=N)
+        W_rth = self.eps.W_raw(r=r,theta=th)
+        return W_rth, (r,th)
+    
+    def rho(self, N:int, gamma:float, r_min:float=3, r_max:float=30, max_fill_r:float=30, normalized:bool=True,K:float|None=None, K_const_bool:bool=True, W_coords:tuple|None=None, **kwarg):
+        
+        if W_coords is None:
+            W,coords = self.W_raw(N=N, r_min=r_min, r_max=r_max)
+        else:
+            W,coords = W_coords
+        
+        W_in = self.eps.W_raw(r=max_fill_r, theta=np.pi/2)
+        h = np.exp(W_in-W)
+        h_bar = np.where((h>1)&(coords[0]<=max_fill_r), h-1, 0.0)
 
         if not K_const_bool:
             try:
@@ -60,7 +64,7 @@ class Density_distribution():
                 rho = (gamma-1)/gamma *(h/K_func + C)
             except:
                 print("something went wrong")
-                rho=0*h_bar
+                rho=np.zeros_like(h_bar)
         elif type(K)==float:
             rho = ((gamma-1)*(h_bar)/(K*gamma))**(1/(gamma-1))
         else:
@@ -71,7 +75,42 @@ class Density_distribution():
         
         return rho, coords
     
-    def disk_mass(self,rho,coords): 
+    def annulus_volume(self,coords,measure:str="legacy"):
+        r,th = coords
+        dr = np.gradient(r[0])
+        dth = th[1][0]-th[0][0]
+        if measure=="legacy":
+            return 2*np.pi*r**2*dr[None,:]*dth
+        elif measure=="rest":
+            return 4*np.pi*self.eps.Sigma(r,th)*np.sin(th)*self.eps.ut_up(r,th)*dr[None,:]*dth #why u^t?#
+        else:
+            raise ValueError(f"unknown mass measure {measure}")
+        
+    
+    
+    def rho_fixed_mass(self,target_M:float, N:int, gamma:float, r_min:float=3, r_max:float=30, measure:str="legacy", xtol:float=1e-12):
+        W_coords = self.W_raw(N=N, r_min=r_min, r_max=r_max)
+        W, coords = W_coords
+        d_Volume = self.annulus_volume(coords=coords, measure=measure)
+        r_c = coords[0][-1][np.argmin(W[-1])]
+        
+        def residual_mass(r_out):
+            rho,_ = self.rho(N=N, gamma=gamma, r_min=r_min, r_max=r_max, max_fill_r=r_out, normalized=False, W_coords=W_coords)
+            return np.sum(d_Volume*rho) - target_M
+        
+        if residual_mass(r_out=r_max)<0:
+            raise ValueError("target mass not reachable inside the grid, increase r_max")    
+        r_out = brentq(residual_mass, r_c, r_max, xtol=xtol, rtol=4*np.finfo(float).eps)
+        try:
+            rho,coords = self.rho(N=N, gamma=gamma, r_min=r_min, r_max=r_max, max_fill_r=r_out, normalized=False, W_coords=W_coords) # type: ignore
+        except:
+            raise ValueError("r_out not a float")
+        return rho, coords, r_out
+
+    def disk_mass(self,rho,coords, measure:str|None=None):
+        if measure is not None:
+            return np.sum(self.annulus_volume(coords=coords, measure=measure)*rho)
+
         r=coords[0]
         dr = coords[0][0][1:] - coords[0][0][:-1]
 

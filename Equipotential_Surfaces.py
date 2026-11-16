@@ -10,7 +10,13 @@ class Equipotential_surface():
     def update_params(self,**kwargs):
         self.spacetime_config.update_params(kwargs=kwargs)
         
+    ##Shift W such that min of W=0
     def W(self,r,theta):
+        W=self.W_raw(r,theta)
+        W = W-np.min(W)
+        return W
+
+    def W_raw(self,r,theta):
         D = self.Delta(r)
         sin = np.sin(theta)
         # psi = self.psi(r,theta)
@@ -20,13 +26,19 @@ class Equipotential_surface():
         a = self.spacetime_config.a
         W = np.log(np.abs(sin))     \
             + 0.5*np.log(np.abs(D)) \
-            - 0.5*np.log(np.abs(2*M*r*(l-a*sin**2)**2/S - l**2 + a**2*sin**2 + r**2*sin**2))
-        # W = 0.5*np.log(np.abs((D*sin**2 )/ psi))
-
-        ##Shift W such that min of W=0
-        W = W-np.min(W)
+            - 0.5*np.log(np.abs(2*M*r*(l-a*sin**2)**2/S - l**2 + a**2*sin**2 + r**2*sin**2)) 
         return W
     
+    def ut_up(self,r,theta):
+        M = self.mass_func(r)
+        S = self.Sigma(r,theta)
+        l = self.L(r,theta)
+        a = self.spacetime_config.a
+        sin2 = np.sin(theta)**2
+        g_tp = -2*M*r*a*sin2/S
+        g_pp = sin2*(r**2 + a**2 + 2*M*r*a**2*sin2/S)
+        return np.exp(self.W_raw(r,theta))*(g_pp + l*g_tp)/(self.Delta(r)*sin2)
+
     def dr_W(self,r,theta):
         M = self.mass_func(r)
         M_ = self.drm_func(r)
@@ -79,7 +91,7 @@ class Equipotential_surface():
         D = self.Delta(r)
         sin = np.sin(theta)
         #return (2*M*r*(l-a*sin**2)**2 / S - l**2 + sin**2*(r**2+a**2))
-        return l**2 * (2*M*r/S - 1) - l*4*r*a*sin**2/S + sin**2 * (r**2 + a**2 +2*M*r*a**2*sin**2/S)
+        return l**2 * (2*M*r/S - 1) - l*4*M*r*a*sin**2/S + sin**2 * (r**2 + a**2 +2*M*r*a**2*sin**2/S)
 
     def dr_ln_psi(self,r,theta):
         M = self.mass_func(r)
