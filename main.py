@@ -130,8 +130,8 @@ if __name__=="__main__":
 
     plt.figure()
     plt.plot(a_vals,g_vals, 'k')
-    plt.xlabel("|a|/m")
-    plt.ylabel("|g|/m")
+    plt.xlabel(r"$\frac{|a|}{m}$")
+    plt.ylabel(r"$\frac{|g|}{m}$")
 
     plt.fill_between(a_vals,g_vals, alpha=0.4, color="k")
 
@@ -183,7 +183,7 @@ if __name__=="__main__":
 
     #### Fixed mass accretion disk comparison with Kerr####
 
-    # """
+    """
     folder_path:str= "/Users/robin/Documents/Master thesis 1"
     diff_filename:str = "sum_diff.txt"
     diff2_filename:str = "sum_diff2.txt"
@@ -191,12 +191,12 @@ if __name__=="__main__":
     a_span:list = [0.5,0.6,0.7,0.8,0.9,1]
     g_span:list = [0.2,0.4,0.6,0.8,1]
 
-    metric_name:str="KS" #metric name from ["Kerr", "Hay","Bar", "EB", "GCSV", "KS", "Zha", "RN"]
+    metric_name:str="RN" #metric name from ["Kerr", "Hay","Bar", "EB", "GCSV", "KS", "Zha", "RN"]
     L_type:str = "const"
-    N_dd=1000
-    gamma=5/3
-    max_extension=25 #initial maximum extension of the accretion disk
-    target_M=10 #Target accretion disk mass
+    N_dd:int=1000
+    gamma:float=5/3
+    max_extension:float=25 #initial maximum extension of the accretion disk
+    target_M:float=10 #Target accretion disk mass
     
 
 
@@ -207,20 +207,20 @@ if __name__=="__main__":
     print("Reading %s" % diff_filename)
     try:
         with open(diff_filename, "rt") as fp:
-            diff_dict = json.load(fp)
+            diff_dict:dict = json.load(fp)
         print("Loaded data from %s" % diff_filename)
     except:
         print("Could not read file, starting from scratch")
-        diff_dict = {}
+        diff_dict:dict = {}
 
     print("Reading %s" % diff2_filename)
     try:
         with open(diff2_filename, "rt") as fp:
-            diff2_dict = json.load(fp)
+            diff2_dict:dict = json.load(fp)
         print("Loaded data from %s" % diff2_filename)
     except:
         print("Could not read file, starting from scratch")
-        diff2_dict = {}
+        diff2_dict:dict = {}
 
 
     metric_diff_dict:dict = {}
@@ -268,4 +268,62 @@ if __name__=="__main__":
     
     #"""
             
-    #### 
+    #### creating plots for diff per g ####
+
+    # """
+    folder_path:str= "/Users/robin/Documents/Master thesis 1"
+    diff_filename:str = "sum_diff.txt"
+    diff2_filename:str = "sum_diff2.txt"
+    dpi = 300
+
+    with open(diff_filename, "rt") as fp:
+        diff_dict = json.load(fp)
+    with open(diff2_filename, "rt") as fp:
+        diff2_dict = json.load(fp)
+    
+    metric_names:list = ["Hay","Bar", "EB", "GCSV", "KS", "RN"]
+
+    a_span:list = [0.5,0.6,0.7,0.8,0.9,1]
+    g_span:list = [0.2,0.4,0.6,0.8,1]
+    
+    def color_line(i, len_a_span:int = len(a_span)):
+        r = 255//len_a_span * i
+        g = 0
+        b = 255//len_a_span * (len_a_span-i)
+
+        return '#%02x%02x%02x' % (r, g, b)
+
+    for metric_name in metric_names:
+        plt.figure()
+        for i,a in enumerate(a_span):
+            diff = diff_dict[metric_name][str(a)]
+            plt.plot(g_span, diff, label=f"a = {a}", color=color_line(i=i))
+        
+        png_file_path:str = path.join(folder_path,"figs","sum_diff",f"{metric_name}.png")
+
+        plt.legend()
+        plt.xlabel(r"$\frac{|g|}{m}$")
+        plt.ylabel(r"$\sum (\rho-\rho_{kerr})$")
+        # plt.show()
+        plt.savefig(dpi = dpi,fname=png_file_path)
+
+    
+        plt.figure()
+        for i,a in enumerate(a_span):
+            diff2 = diff2_dict[metric_name][str(a)]
+            plt.plot(g_span, diff2, label=f"a = {a}", color=color_line(i=i))
+        
+        png_file_path:str = path.join(folder_path,"figs","sum_diff2",f"{metric_name}.png")
+
+        plt.legend()
+        plt.xlabel(r"$\frac{|g|}{m}$")
+        plt.ylabel(r"$\sum (\rho-\rho_{kerr})^2$")
+        # plt.show()
+        plt.savefig(dpi = dpi, fname=png_file_path)
+
+
+    
+
+
+
+    # """
