@@ -183,7 +183,7 @@ if __name__=="__main__":
 
     #### Fixed mass accretion disk comparison with Kerr####
 
-    """
+    # """
     folder_path:str= "/Users/robin/Documents/Master thesis 1"
     diff_filename:str = "sum_diff.txt"
     diff2_filename:str = "sum_diff2.txt"
@@ -197,6 +197,7 @@ if __name__=="__main__":
     gamma:float=5/3
     max_extension:float=25 #initial maximum extension of the accretion disk
     target_M:float=10 #Target accretion disk mass
+    measure:str = "rest"
     
 
 
@@ -229,7 +230,9 @@ if __name__=="__main__":
         dd_kerr.update_params(a=a) #updating the kerr metric spin 
         dd.update_params(a=a) #updating the metric spin
 
-        rho_kerr,coords,r_max_kerr = dd_kerr.rho_fixed_mass(target_M=target_M, N=N_dd,gamma=gamma)
+        rho_kerr,coords,r_max_kerr = dd_kerr.rho_fixed_mass(target_M=target_M, N=N_dd,gamma=gamma,measure=measure)
+        print("########")
+        print(dd_kerr.disk_mass(rho=rho_kerr, coords=coords, measure="rest")-target_M)
 
         metric_diff_dict[a] = []
         metric_diff2_dict[a] = []
@@ -237,13 +240,14 @@ if __name__=="__main__":
         for j,g_frac in enumerate(g_span):
             dd.update_params(g_max_frac=g_frac) #updating the metric deformation parameter
 
-            rho,coords,r_max = dd.rho_fixed_mass(target_M=target_M, N=N_dd,gamma=gamma)
+            rho,coords,r_max = dd.rho_fixed_mass(target_M=target_M, N=N_dd,gamma=gamma,measure=measure)
+            # print(dd.disk_mass(rho=rho, coords=coords, measure="rest")-target_M)
             
 
             delta_rho = rho-rho_kerr #calculating the difference with the kerr metric 
 
             metric_diff_dict[a].append(np.sum(delta_rho))
-            metric_diff2_dict[a].append(np.sum(delta_rho**2))
+            metric_diff2_dict[a].append(dd.disk_mass(rho=rho,coords=coords,measure=measure)-dd_kerr.disk_mass(rho=rho_kerr,coords=coords,measure=measure))
 
 
             dd.plot_in_polar(data=delta_rho,coords=coords,cmap="seismic",color_norm=False)
@@ -281,7 +285,7 @@ if __name__=="__main__":
     with open(diff2_filename, "rt") as fp:
         diff2_dict = json.load(fp)
     
-    metric_names:list = ["Hay","Bar", "EB", "GCSV", "KS", "RN"]
+    metric_names:list = ["RN"] #["Hay","Bar", "EB", "GCSV", "KS", 
 
     a_span:list = [0.5,0.6,0.7,0.8,0.9,1]
     g_span:list = [0.2,0.4,0.6,0.8,1]
@@ -311,13 +315,14 @@ if __name__=="__main__":
         plt.figure()
         for i,a in enumerate(a_span):
             diff2 = diff2_dict[metric_name][str(a)]
+            print(g_span[np.argmax(diff2)])
             plt.plot(g_span, diff2, label=f"a = {a}", color=color_line(i=i))
         
         png_file_path:str = path.join(folder_path,"figs","sum_diff2",f"{metric_name}.png")
 
         plt.legend()
         plt.xlabel(r"$\frac{|g|}{m}$")
-        plt.ylabel(r"$\sum (\rho-\rho_{kerr})^2$")
+        plt.ylabel(r"$\Delta M$")
         # plt.show()
         plt.savefig(dpi = dpi, fname=png_file_path)
 

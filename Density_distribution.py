@@ -91,16 +91,16 @@ class Density_distribution():
     def rho_fixed_mass(self,target_M:float, N:int, gamma:float, r_min:float=3, r_max:float=30, measure:str="legacy", xtol:float=1e-12):
         W_coords = self.W_raw(N=N, r_min=r_min, r_max=r_max)
         W, coords = W_coords
-        d_Volume = self.annulus_volume(coords=coords, measure=measure)
         r_c = coords[0][-1][np.argmin(W[-1])]
         
         def residual_mass(r_out):
-            rho,_ = self.rho(N=N, gamma=gamma, r_min=r_min, r_max=r_max, max_fill_r=r_out, normalized=False, W_coords=W_coords)
-            return np.sum(d_Volume*rho) - target_M
+            rho,coords = self.rho(N=N, gamma=gamma, r_min=r_min, r_max=r_max, max_fill_r=r_out, normalized=False, W_coords=W_coords)
+            return self.disk_mass(rho,coords,measure=measure)- target_M
         
         if residual_mass(r_out=r_max)<0:
             raise ValueError("target mass not reachable inside the grid, increase r_max")    
         r_out = brentq(residual_mass, r_c, r_max, xtol=xtol, rtol=4*np.finfo(float).eps)
+        # print(residual_mass(r_out=r_out))
         try:
             rho,coords = self.rho(N=N, gamma=gamma, r_min=r_min, r_max=r_max, max_fill_r=r_out, normalized=False, W_coords=W_coords) # type: ignore
         except:
