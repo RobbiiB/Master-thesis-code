@@ -165,3 +165,9 @@ class Spacetime_config():
         return r**2 + self.a**2 * np.cos(theta)**2
     def f(self,r,theta)->float:
         return 1-2*r*self.mass_func(r)/self.Sigma(r,theta)
+    def g_phiphi(self,r,theta):
+        s = np.sin(theta)
+        a = self.a
+        M = self.mass_func(r)
+        S = self.Sigma(r,theta)
+        return s**2 * (r**2 + a**2 + (2*M*r*a**2*s**2)/S)

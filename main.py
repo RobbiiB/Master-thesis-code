@@ -157,6 +157,7 @@ if __name__=="__main__":
     gamma=5/3
     max_extension=25 #initial maximum extension of the accretion disk 
     target_M=10 #Target accretion disk mass
+    measure:str = "rest"
 
     for i,a in enumerate(a_span):
         for j,g_frac in enumerate(g_span):
@@ -167,7 +168,7 @@ if __name__=="__main__":
 
             r_max_extension = max_extension
 
-            rho,coords,r_max_extension = dd.rho_fixed_mass(target_M=target_M,N=N_dd,gamma=gamma) #disk mass matched exactly by root finding on the outer radius
+            rho,coords,r_max_extension = dd.rho_fixed_mass(target_M=target_M,N=N_dd,gamma=gamma, measure=measure) #disk mass matched exactly by root finding on the outer radius
             
 
             dd.plot_in_polar(data=rho,coords=coords,cmap="magma")
@@ -183,15 +184,16 @@ if __name__=="__main__":
 
     #### Fixed mass accretion disk comparison with Kerr####
 
-    # """
+    """
     folder_path:str= "/Users/robin/Documents/Master thesis 1"
     diff_filename:str = "sum_diff.txt"
     diff2_filename:str = "sum_diff2.txt"
+    Lum_filename:str = "luminosity_diff.txt"
 
     a_span:list = [0.5,0.6,0.7,0.8,0.9,1]
     g_span:list = [0.2,0.4,0.6,0.8,1]
 
-    metric_name:str="RN" #metric name from ["Kerr", "Hay","Bar", "EB", "GCSV", "KS", "Zha", "RN"]
+    metric_name:str="Hay" #metric name from ["Kerr", "Hay","Bar", "EB", "GCSV", "KS", "Zha", "RN"]
     L_type:str = "const"
     N_dd:int=1000
     gamma:float=5/3
@@ -223,31 +225,46 @@ if __name__=="__main__":
         print("Could not read file, starting from scratch")
         diff2_dict:dict = {}
 
+    print("Reading %s" % Lum_filename)
+    try:
+        with open(Lum_filename, "rt") as fp:
+            Lum_dict:dict = json.load(fp)
+        print("Loaded data from %s" % Lum_filename)
+    except:
+        print("Could not read file, starting from scratch")
+        Lum_dict:dict = {}
+
 
     metric_diff_dict:dict = {}
     metric_diff2_dict:dict = {}
+    metric_Lum_dict:dict = {}
     for i,a in enumerate(a_span):
         dd_kerr.update_params(a=a) #updating the kerr metric spin 
         dd.update_params(a=a) #updating the metric spin
 
         rho_kerr,coords,r_max_kerr = dd_kerr.rho_fixed_mass(target_M=target_M, N=N_dd,gamma=gamma,measure=measure)
-        print("########")
-        print(dd_kerr.disk_mass(rho=rho_kerr, coords=coords, measure="rest")-target_M)
+        L_kerr = dd_kerr.Luminosity(rho_kerr,coords,gamma=gamma)
+    
 
         metric_diff_dict[a] = []
         metric_diff2_dict[a] = []
+        metric_Lum_dict[a] = []
 
         for j,g_frac in enumerate(g_span):
             dd.update_params(g_max_frac=g_frac) #updating the metric deformation parameter
 
             rho,coords,r_max = dd.rho_fixed_mass(target_M=target_M, N=N_dd,gamma=gamma,measure=measure)
-            # print(dd.disk_mass(rho=rho, coords=coords, measure="rest")-target_M)
             
+            L = dd.Luminosity(rho,coords,gamma=gamma)
+
+
 
             delta_rho = rho-rho_kerr #calculating the difference with the kerr metric 
 
             metric_diff_dict[a].append(np.sum(delta_rho))
             metric_diff2_dict[a].append(dd.disk_mass(rho=rho,coords=coords,measure=measure)-dd_kerr.disk_mass(rho=rho_kerr,coords=coords,measure=measure))
+            metric_Lum_dict[a].append(L/L_kerr)
+            
 
 
             dd.plot_in_polar(data=delta_rho,coords=coords,cmap="seismic",color_norm=False)
@@ -261,6 +278,7 @@ if __name__=="__main__":
     
     diff_dict[metric_name] = metric_diff_dict
     diff2_dict[metric_name] = metric_diff2_dict
+    Lum_dict[metric_name] = metric_Lum_dict
 
     print("Overwriting %s" % diff_filename)
     with open(diff_filename, "wt") as fp:
@@ -268,6 +286,10 @@ if __name__=="__main__":
     print("Overwriting %s" % diff2_filename)
     with open(diff2_filename, "wt") as fp:
         json.dump(diff2_dict, fp)
+    print("Overwriting %s" % Lum_filename)
+    with open(Lum_filename, "wt") as fp:
+        json.dump(Lum_dict, fp)
+    print("Done with %s" % metric_name)
     
     
     #"""
@@ -278,14 +300,18 @@ if __name__=="__main__":
     folder_path:str= "/Users/robin/Documents/Master thesis 1"
     diff_filename:str = "sum_diff.txt"
     diff2_filename:str = "sum_diff2.txt"
+    Lum_filename:str = "luminosity_diff.txt"
+
     dpi = 300
 
     with open(diff_filename, "rt") as fp:
         diff_dict = json.load(fp)
     with open(diff2_filename, "rt") as fp:
         diff2_dict = json.load(fp)
+    with open(Lum_filename, "rt") as fp:
+        Lum_dict = json.load(fp)
     
-    metric_names:list = ["RN"] #["Hay","Bar", "EB", "GCSV", "KS", 
+    metric_names:list = ["Hay", "Bar", "EB", "GCSV", "KS", "RN"]
 
     a_span:list = [0.5,0.6,0.7,0.8,0.9,1]
     g_span:list = [0.2,0.4,0.6,0.8,1]
@@ -315,7 +341,6 @@ if __name__=="__main__":
         plt.figure()
         for i,a in enumerate(a_span):
             diff2 = diff2_dict[metric_name][str(a)]
-            print(g_span[np.argmax(diff2)])
             plt.plot(g_span, diff2, label=f"a = {a}", color=color_line(i=i))
         
         png_file_path:str = path.join(folder_path,"figs","sum_diff2",f"{metric_name}.png")
@@ -326,9 +351,17 @@ if __name__=="__main__":
         # plt.show()
         plt.savefig(dpi = dpi, fname=png_file_path)
 
+        plt.figure()
+        for i,a in enumerate(a_span):
+            Lum_frac = Lum_dict[metric_name][str(a)]
+            plt.plot(g_span, Lum_frac, label=f"a = {a}", color=color_line(i=i))
+        
+        png_file_path:str = path.join(folder_path,"figs","Lum_diff",f"{metric_name}.png")
 
-    
-
-
+        plt.legend()
+        plt.xlabel(r"$\frac{|g|}{m}$")
+        plt.ylabel(r"$\frac{L(a)}{L_{Kerr}(a)}$")
+        # plt.show()
+        plt.savefig(dpi = dpi, fname=png_file_path)
 
     # """

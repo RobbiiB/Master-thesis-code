@@ -82,7 +82,7 @@ class Density_distribution():
         if measure=="legacy":
             return 2*np.pi*r**2*dr[None,:]*dth
         elif measure=="rest":
-            return 4*np.pi*self.eps.Sigma(r,th)*np.sin(th)*self.eps.ut_up(r,th)*dr[None,:]*dth #why u^t?#
+            return 4*np.pi*self.eps.Sigma(r,th)*np.sin(th)*self.eps.ut_up(r,th)*dr[None,:]*dth 
         else:
             raise ValueError(f"unknown mass measure {measure}")
         
@@ -202,6 +202,31 @@ class Density_distribution():
         plt.colorbar(im)
         plt.ylabel("z")
         plt.xlabel(r"$\rho$")
+    
+    def Luminosity(self,rho,coords, gamma:float=5/3, K:float=1, m:float=1,k_B:float=1, sigma_boltz:float=1):
+        ##If no values for K, m, k_B, simga_boltz are given L is given in units of sigma_boltz*(K/(m*k_B))^4
+        r,th = coords
+        dr = np.gradient(r[0])
+        dth = th[1][0]-th[0][0]
+
+        def area(coords=coords, dr=dr,dth=dth):
+            r,th = coords
+            
+            S1 = np.sqrt(self.eps.Sigma(r[:-1][:,:-1],th[:-1][:,:-1])*dth)
+            S2 = np.sqrt(self.eps.Sigma(r[1:][:,1:],th[:-1][:,:-1])*dth)
+
+            S3 = np.sqrt(self.eps.Sigma(r[:-1][:,:-1],th[:-1][:,:-1])/self.eps.Delta(r[:-1][:,:-1]))*dr[:-1]
+            S4 = np.sqrt(self.eps.Sigma(r[:-1][:,:-1],th[1:][:,1:])/self.eps.Delta(r[:-1][:,:-1]))*dr[1:]
+
+            return 2*np.pi*np.sqrt(self.eps.spacetime_config.g_phiphi(r=r[:-1,:-1],theta=th[:-1,:-1])) * (S1+S2+S3+S4)
+        
+        T = (K/(m*k_B))*rho[1:,1:]**(gamma-1)
+        A = area(coords,dr,dth)
+
+        L_i = A*sigma_boltz*T**4
+
+        return np.sum(L_i)        
+        
 
 
 
