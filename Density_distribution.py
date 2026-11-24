@@ -88,8 +88,9 @@ class Density_distribution():
         
     
     
-    def rho_fixed_mass(self,target_M:float, N:int, gamma:float, r_min:float=3, r_max:float=30, measure:str="legacy", xtol:float=1e-12):
-        W_coords = self.W_raw(N=N, r_min=r_min, r_max=r_max)
+    def rho_fixed_mass(self,target_M:float, N:int, gamma:float, r_min:float=3, r_max:float=30, measure:str="legacy", xtol:float=1e-12, W_coords:None|tuple=None):
+        if W_coords is None:
+            W_coords = self.W_raw(N=N, r_min=r_min, r_max=r_max)
         W, coords = W_coords
         r_c = coords[0][-1][np.argmin(W[-1])]
         
@@ -225,7 +226,9 @@ class Density_distribution():
 
         L_i = A*sigma_boltz*T**4
 
-        return np.sum(L_i)        
+        return np.sum(L_i)     
+
+    
         
 
 

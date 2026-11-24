@@ -294,9 +294,9 @@ if __name__=="__main__":
     
     #"""
             
-    #### creating plots for diff per g ####
+    # type: ignore #### creating plots for diff per g ####
 
-    # """
+    """
     folder_path:str= "/Users/robin/Documents/Master thesis 1"
     diff_filename:str = "sum_diff.txt"
     diff2_filename:str = "sum_diff2.txt"
@@ -347,7 +347,7 @@ if __name__=="__main__":
 
         plt.legend()
         plt.xlabel(r"$\frac{|g|}{m}$")
-        plt.ylabel(r"$\Delta M$")
+        plt.ylabel(r"$\Delta M$") 
         # plt.show()
         plt.savefig(dpi = dpi, fname=png_file_path)
 
@@ -365,3 +365,105 @@ if __name__=="__main__":
         plt.savefig(dpi = dpi, fname=png_file_path)
 
     # """
+
+    #####
+    # """
+    a_span:list = [0.5,0.6,0.7,0.8,0.9,1]
+    g_span:list = [0.2,0.4,0.6,0.8,1]
+
+    metric_name:str="Hay" #metric name from ["Kerr", "Hay","Bar", "EB", "GCSV", "KS", "Zha", "RN"]
+    L_type:str = "const"
+    N:int=1000
+    gamma:float=5/3
+    max_extension:float=25 #initial maximum extension of the accretion disk
+    target_M = [30,25,20,15,10,5] #Target accretion disk mass
+    measure:str = "rest"
+
+    # dd_kerr = DenDist(metric_name="Kerr", g_max_frac=0,a=1,L_type=L_type) #initializing the density distribution object for the kerr metric
+    dd=DenDist(metric_name=metric_name,g_max_frac=0,a=1,L_type=L_type) #initializing the density distribution object
+
+    metric_comp_filename:str = "metric_comp_data.txt" 
+
+    print("Reading %s" % metric_comp_filename)
+    try:
+        with open(metric_comp_filename, "rt") as fp:
+            comp_dict:dict = json.load(fp)
+        print("Loaded data from %s" % metric_comp_filename)
+    except:
+        print("Could not read file, starting from scratch")
+        comp_dict:dict = {}
+        comp_dict["a"] = a_span
+        comp_dict["g"] = g_span
+        comp_dict["M"] = target_M
+    
+
+
+    comp_dict[metric_name]={
+        "r_cusp":[],
+        "pot_diff":[],
+        "rho_max":[] 
+        }
+
+    for i,a in enumerate(a_span):
+        # dd_kerr.update_params(a=a)
+        dd.update_params(a=a)
+
+    
+        for j,g_frac in enumerate(g_span):
+            dd.update_params(g_max_frac = g_frac)
+
+            # W_kerr,coords = dd_kerr.W_raw(N=N)
+            W,coords = dd.W_raw(N=N)
+
+
+            # r_cusp_kerr = coords[-1][np.argmax(W_kerr[-1])]
+            r_cusp = coords[-1][np.argmax(W[-1])]
+            print(np.argmax(W[-1]))
+            comp_dict[metric_name]["r_cusp"].append(r_cusp)
+            # print(np.shape((comp_dict[metric_name]["r_cusp"])))
+
+
+            # potential_range_kerr = np.max(W_kerr[-1]) - np.min(W_kerr[-1][np.argmax(W_kerr[-1]):])
+            potential_range = np.max(W[-1]) - np.min(W[-1][np.argmax(W[-1]):])
+            comp_dict[metric_name]["pot_diff"].append(potential_range)
+            # print(len(comp_dict[metric_name]["pot_diff"]))
+            
+            for k,M in enumerate(target_M):
+                # rho_kerr,coords,_ = dd_kerr.rho_fixed_mass(target_M=M,N=N,gamma=gamma, measure="rest",W_coords=(W_kerr,coords))
+                rho,coords,_ = dd.rho_fixed_mass(target_M=M,N=N,gamma=gamma, measure="rest",W_coords=(W,coords))
+                rho_max = np.max(rho)
+                
+
+                comp_dict[metric_name]["rho_max"].append(rho_max)
+                # print(len(comp_dict[metric_name]["rho_max"]))
+            
+            print(f"\t{(i*len(g_span)+j + 1)*100//(len(a_span)*len(g_span))}%")
+    
+    r_cusps = np.array(comp_dict[metric_name]["r_cusp"])
+    np.reshape(r_cusps,(len(a_span),len(g_span)))
+    comp_dict[metric_name]["r_cusp"] = r_cusps.tolist()
+
+    pot_diff = np.array(comp_dict[metric_name]["pot_diff"])
+    np.reshape(pot_diff,(len(a_span),len(g_span)))
+    comp_dict[metric_name]["pot_diff"] = pot_diff.tolist()
+
+    rho_max = np.array(comp_dict[metric_name]["rho_max"])
+    print(rho_max)
+    np.reshape(rho_max,(len(a_span)*len(g_span),len(target_M)))
+    rho_max = rho_max.T
+    np.reshape(rho_max,(len(target_M),len(a_span),len(g_span)))
+    comp_dict[metric_name]["rho_max"] = rho_max.tolist()
+    print(rho_max)
+
+    print("Overwriting %s" % metric_comp_filename)
+    with open(metric_comp_filename, "wt") as fp:
+        json.dump(comp_dict, fp)
+    print("Done with %s" % metric_name)
+            
+
+
+
+                
+
+                
+    #"""
